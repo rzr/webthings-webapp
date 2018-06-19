@@ -15,20 +15,8 @@ var app = {
   datacontent: document.querySelector('.textarea')
 };
 
-app.log = function(arg)
-{
-  if (arg && arg.name && arg.message) {
-    var err = arg;
-    this.log("exception [" + err.name + "] msg[" + err.message + "]");
-  }
-  var text = "log: " + arg + "\n";
-  console.log(text);
-  document.form.console.value += text;
-  document.form.console.value.scrollTop = document.form.console.value.scrollHeight;
-};
-
-//TODO enable this if you want to use brower log only for debuging
-//app.log = console.log;
+//TODO disable this if you want to hide log
+app.log = console.log;
 
 app.handleDocument = function(document)
 {
@@ -124,17 +112,81 @@ app.put = function(endpoint, payload, callback)
   request.send(payload);
 }
 
+app.updateView = function(model, view)
+{
+  var self = this;
+  if ( model.type == "onOffSwitch" ) {
+    var endpoint = model.properties.on.href;
+    this.get(endpoint, function(err, data) {
+      view.local.widget.checked = !!(JSON.parse(data).on);
+    });
+  } else if (model.type == "multilevelSensor") {
+    this.get(model.properties.level.href, function(err, data) {
+      view.local.button.innerText = JSON.parse(data).level;
+    });
+  }
+};
+
+app.createOnOffSwitchView = function(li, model)
+{
+  li.setAttribute('class', 'ui-li-static ui-li-1line-btn1');
+  var div = document.createElement('div');
+  div.setAttribute('class', 'ui-btn.ui-btn-box-s ui-toggle-container');
+
+  var widget = li.local.widget = document.createElement('input');
+  widget.setAttribute('type', 'checkbox');
+  //TODO: widget.tau = tau.widget.ToggleSwitch(widget);
+  widget.setAttribute('class','ui-toggle-switch');
+  widget.setAttribute('data-tau-built', "ToggleSwitch");
+  widget.setAttribute('data-tau-name', "ToggleSwitch");
+  widget.setAttribute('aria-disabled', "false");
+  widget.setAttribute('data-tau-bound', "ToggleSwitch");
+  var endpoint = model.properties.on.href;
+  div.appendChild(widget);
+  var handlerdiv = document.createElement('div');
+  handlerdiv.setAttribute('class', 'ui-switch-handler');
+  div.appendChild(handlerdiv);
+  li.appendChild(div);
+  return li;
+};
+
+app.createView = function(model)
+{
+  var li = document.createElement('li');
+  li.tau = tau.widget.Listview(li);
+  li.value = model.name;
+  li.innerText = model.name;
+  li.local = {};
+  li.local.model = model;
+
+  model.local = {};
+  if (model.type == "onOffSwitch" || model.type == "dimmableColorLight") {
+    model.local.view = this.createOnOffSwitchView(li, model);
+  } else {
+    li.setAttribute('class', 'ui-li-static');
+    this.log("TODO: implement " + model.type);
+  }
+  return li;
+};
+
 app.query = function(url)
 {
   var self = this;
-  url = (url) || window.form.url.value + window.form.endpoint.value;
+  url = (url) || window.form.url.value;
   this.log("query: " + url);
   this.get("/things", function(err, data) {
     if (err || !data) throw err;
     var items = data && JSON.parse(data) || [];
+    var list = document.getElementById('items');
+    list.innerHTML = "";  // Clean list
+    var listWidget;
     for (var index=0; index < items.length; index++) {
       var model = items[index];
-      self.log(JSON.stringify(model));
+      var view = self.createView(model);
+      self.updateView(model, view);
+      list.appendChild(view);
+      listWidget = tau.widget.Listview(list);
+      listWidget.refresh();
     };
   });
 };
@@ -235,14 +287,8 @@ window.onload = function() {
     app.main();
   });
 
-  var clearButton = document.getElementById('clear');
-  clearButton.addEventListener('click', function() {
-    document.form.console.value = '';
-  });
-
   var resetButton = document.getElementById('reset');
   resetButton.addEventListener('click', function() {
-    document.form.console.value = '';
     document.form.url.value = '';
     document.form.token.value = '';
     localStorage.clear();

@@ -15,8 +15,6 @@ function log(arg)
   }
   var text = "log: " + arg + "\n";
   console.log(text);
-  document.form.console.value += text;
-  document.form.console.value.scrollTop = document.form.console.value.scrollHeight;
 }
 
 function handleDocument(document)
@@ -88,15 +86,130 @@ function request()
   query();
 }
 
+function updateView(model, view)
+{
+  var self = this;
+  if ( model.type == "onOffSwitch" ) {
+    log("update: " + view);
+    var endpoint = model.properties.on.href;
+    get(endpoint, function(err, data) {
+      view.local.radio.checked = !!(JSON.parse(data).on);
+    });
+  } else if (model.type == "multilevelSensor") {
+    get(model.properties.level.href, function(err, data) {
+      view.local.button.innerText = JSON.parse(data).level;
+    });
+  }
+}
+
+function createViewOnOffSwitch(li, model)
+{
+  li.setAttribute('class', 'ui-li-static ui-li-1line-btn1');
+  var div = document.createElement('div');
+  div.setAttribute('class', 'ui-btn.ui-btn-box-s ui-toggle-container');
+
+  var radio = li.local.radio = document.createElement('input');
+  radio.setAttribute('type', 'checkbox');
+  //TODO: radio.tau = tau.widget.ToggleSwitch(radio);
+  radio.setAttribute('class','ui-toggle-switch');
+  radio.setAttribute('data-tau-built', "ToggleSwitch");
+  radio.setAttribute('data-tau-name', "ToggleSwitch");
+  radio.setAttribute('aria-disabled', "false");
+  radio.setAttribute('data-tau-bound', "ToggleSwitch");
+  var endpoint = model.properties.on.href;
+  div.appendChild(radio);
+  var handlerdiv = document.createElement('div');
+  handlerdiv.setAttribute('class', 'ui-switch-handler');
+  div.appendChild(handlerdiv);
+  li.appendChild(div);
+
+  return li;
+}
+
+function createViewMultilevelSensor(li, model)
+{
+  var button = li.local.button = document.createElement('button');
+  //button.tau = tau.widget.Button(button);
+  button.setAttribute('class','ui-btn ui-inline');
+  button.setAttribute('data-tau-built', "Button");
+  button.setAttribute('data-tau-name', "Button");
+  button.setAttribute('aria-disabled', "false");
+  button.setAttribute('data-tau-bound', "Button");
+  button.innerText = "?";
+  button.local = {};
+  button.addEventListener('click', function(){
+    button.local.interval = setTimeout(function(){
+      if (button.disabled) {
+        put(model.properties.on.href, { on: true }, function(err, data) {
+          data = JSON.parse(data);
+          button.disabled = false;
+          button.innerText = (data.on) ? "ON" : "OFF";
+        });
+      }
+      button.disabled = false;
+    }, 2000);
+
+    button.disabled = true;
+    get(model.properties.on.href, function(err, data) {
+      data = JSON.parse(data);
+      log("~~~ : get: on: ? " + data.on);
+      if (!data.on) {
+        button.innerText = "OFF";
+      } else {
+        get(model.properties.level.href, function(err, data) {
+          log("~~~ : get: level: " + data);
+          data = JSON.parse(data);
+          clearInterval(button.local.interval);
+          button.disabled = false;
+          button.innerText = (data) ? data.level : "?";
+        });
+      }
+    });
+  });
+  li.setAttribute('class', 'ui-li-static ui-li-1line-btn1');
+  li.appendChild(button);
+  return li;
+}
+
+function createView(model)
+{
+  var li = document.createElement('li');
+  li.tau = tau.widget.Listview(li);
+  li.value = model.name;
+  li.innerText = model.name;
+  li.local = {};
+  li.local.model = model;
+
+  model.local = {};
+  if (model.type == "onOffSwitch" || model.type == "dimmableColorLight") {
+    model.local.view = createViewOnOffSwitch(li, model);
+  } else if (model.type == "multilevelSensor") {
+    model.local.view = createViewMultilevelSensor(li, model);
+  } else {
+    li.setAttribute('class', 'ui-li-static');
+    log("TODO: implement " + model.type);
+  }
+
+  return li;
+}
+
 function query(url)
 {
-  url = (url) || window.form.url.value + window.form.endpoint.value;
+  url = (url) || window.form.url.value;
   log("query: " + url);
   get("/things", function(err, data) {
+    var list = document.getElementById('items');
+    list.innerHTML = "";  // Clean list
     var items = data && JSON.parse(data) || [];
+    var index;
+    var listWidget;
     for (index=0; index < items.length; index++) {
       var model = items[index];
-      log(JSON.stringify(model));
+      var view = createView(model);
+      updateView(model, view);
+      list.appendChild(view);
+      listWidget = tau.widget.Listview(list);
+      listWidget.refresh();
     };
   });
 }
@@ -121,13 +234,8 @@ function main()
   }
 }
 
-window.onload = function() {
-
-  var clearButton = document.getElementById('clear');
-  clearButton.addEventListener('click', function() {
-    document.form.console.value = '';
-  });
-
+window.onload = function()
+{
   var forgetButton = document.getElementById('forget');
   forgetButton.addEventListener('click', function() {
     document.form.console.value = '';

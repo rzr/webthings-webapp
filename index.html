@@ -9,38 +9,17 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="description" content="Example" />
 <title>Example</title>
-
-<script>
-<!--
-function log(arg)
-{
-  if (arg && arg.name && arg.message) {
-    var err = arg;
-    log("exception [" + err.name + "] msg[" + err.message + "]");
-  }
-  var text = "log: " + arg + "\n";
-  console.log(text);
-  document.form.console.value += text;
-  document.form.console.value.scrollTop = document.form.console.value.scrollHeight;
-}
-
-function evalSource()
-{
-  var source = document.form.source.value;
-  eval(source);
-}
-//-->
-</script>
-
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+<script src="js/index.js"></script>
 </head>
 
 <body onload='evalSource()'>
-
+<div id="main" class="page">
+<div class="contents">
 <h1>Example</h1>
-
 <form name="form">
 <input type="button" onclick="evalSource()" value="Eval" />
 <input type="button" onclick="document.form.source.value=document.form.console.value=''" value="Clear" />
@@ -60,5 +39,7 @@ Console:<br />
 
 <p />
 </form>
+</div>
+</div>
 </body>
 </html>

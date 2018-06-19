@@ -87,6 +87,25 @@ app.get = function(endpoint, callback)
   request.send();
 };
 
+app.put = function(endpoint, payload, callback)
+{
+  var url = window.form.url.value + endpoint;
+  var token = localStorage['token'];
+  payload = JSON.stringify(payload);
+  this.log(url);
+  this.log(payload);
+  var request = new XMLHttpRequest();
+  request.addEventListener('load', function() {
+    callback = callback || {};
+    callback(null, this.responseText);
+  });
+    request.open('PUT', url);
+  request.setRequestHeader('Content-Type', 'application/json');
+  request.setRequestHeader('Accept', 'application/json');
+  request.setRequestHeader('Authorization', 'Bearer ' + token);
+  request.send(payload);
+}
+
 app.query = function(url)
 {
   var self = this;

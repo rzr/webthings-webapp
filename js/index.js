@@ -86,6 +86,26 @@ function request()
   query();
 }
 
+function put(endpoint, payload, callback)
+{
+
+  var url = window.form.url.value + endpoint;
+  var token = localStorage['token'];
+  payload = JSON.stringify(payload);
+  log(url); //TODO
+  log(payload);
+  var request = new XMLHttpRequest();
+  request.addEventListener('load', function() {
+    callback = callback || {};
+    callback(null, this.responseText);
+  });
+    request.open('PUT', url);
+  request.setRequestHeader('Content-Type', 'application/json');
+  request.setRequestHeader('Accept', 'application/json');
+  request.setRequestHeader('Authorization', 'Bearer ' + token);
+  request.send(payload);
+}
+
 function updateView(model, view)
 {
   var self = this;
@@ -117,6 +137,22 @@ function createViewOnOffSwitch(li, model)
   radio.setAttribute('aria-disabled', "false");
   radio.setAttribute('data-tau-bound', "ToggleSwitch");
   var endpoint = model.properties.on.href;
+  radio.local = {};
+  radio.addEventListener('click', function(){
+    radio.disabled  = true;
+    var wanted = (this.checked);
+    radio.local.interval = setTimeout(function(){
+      radio.disabled = false;
+    }, 1000);
+ 
+    var self = this;
+    log('wanted: ' + wanted);
+    put(endpoint, { on: wanted }, function(res, data) {
+      self.checked  = !! (JSON.parse(data).on)
+      clearInterval(radio.local.interval);
+      radio.disabled = false;
+    });
+  });
   div.appendChild(radio);
   var handlerdiv = document.createElement('div');
   handlerdiv.setAttribute('class', 'ui-switch-handler');

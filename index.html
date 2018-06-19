@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!-- 
+     Copyright 2018-present Samsung Electronics France SAS, and other contributors
+     This Source Code Form is subject to the terms of the Mozilla Public
+     License, v. 2.0. If a copy of the MPL was not distributed with this
+     file, You can obtain one at http://mozilla.org/MPL/2.0/.*
+  -->
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,user-scalable=no"/>
+<meta name="description" content="Example" />
+<title>Example</title>
+
+<script>
+<!--
+function log(arg)
+{
+  if (arg && arg.name && arg.message) {
+    var err = arg;
+    log("exception [" + err.name + "] msg[" + err.message + "]");
+  }
+  var text = "log: " + arg + "\n";
+  console.log(text);
+  document.form.console.value += text;
+  document.form.console.value.scrollTop = document.form.console.value.scrollHeight;
+}
+
+function evalSource()
+{
+  var source = document.form.source.value;
+  eval(source);
+}
+//-->
+</script>
+
+</head>
+
+<body onload='evalSource()'>
+
+<h1>Example</h1>
+
+<form name="form">
+<input type="button" onclick="evalSource()" value="Eval" />
+<input type="button" onclick="document.form.source.value=document.form.console.value=''" value="Clear" />
+
+<p/>
+  
+Source :<br />
+<textarea rows="8" cols="40" name="source">
+log(navigator.userAgent);
+</textarea>
+
+<p/>
+
+Console:<br />
+<textarea rows="8" cols="40" name=console>
+</textarea>
+
+<p />
+</form>
+</body>
+</html>

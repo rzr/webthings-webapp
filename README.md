@@ -13,15 +13,21 @@ using a remote URL (ie: https://rzr.github.io/webthings-webapp/ )
 or just load index.html from filesystem (using file:/// protocol).
 
 ```
-chromium-browser --disable-web-security https://rzr.github.io/webthings-webapp/
+rm -rf tmp
+mkdir -p tmp
+chromium-browser --disable-web-security --user-data-dir="tmp" https://rzr.github.io/webthings-webapp/
 ```
 
 Then update gateway's URL:
 * http://gateway.local:8080 : for default location in local network
 * https://$host.mozilla-iot.org : for public (if you haven't skipped the registation step)
 
-For reference, It was tested on Tizen TM1 reference device.
+For debuging purposes here are various snapshot of the app:
 
+* https://tizenteam.github.io/webthings-webapp/
+* https://rzr.github.io/webthings-webapp/
+
+For reference, It was tested on Tizen TM1 reference device.
 
 ## DEMO: ##
 

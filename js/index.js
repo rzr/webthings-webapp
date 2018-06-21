@@ -134,6 +134,11 @@ window.onload = function() {
     localStorage.clear();
     log('token forgotten (need auth again)');
   });
+
+  var urlInput = document.getElementById('url');
+  urlInput.addEventListener('change', function() {
+    this.value = this.value.replace(/\/$/, "");
+  });
   // add eventListener for tizenhwkey
   document.addEventListener('tizenhwkey', function(e) {
     if (e.keyName === "back") {

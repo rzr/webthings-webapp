@@ -23,7 +23,7 @@ app.log = function(arg)
   console.log(text);
   document.form.console.value += text;
   document.form.console.value.scrollTop = document.form.console.value.scrollHeight;
-}
+};
 
 app.handleDocument = function(document)
 {
@@ -33,7 +33,7 @@ app.handleDocument = function(document)
   var thisNode = iterator.iterateNext();
   this.log("token: " + thisNode.textContent); //TODO
   localStorage['token'] = thisNode.textContent;
-}
+};
 
 app.browse = function(base_url, callback)
 {
@@ -83,7 +83,7 @@ app.get = function(endpoint, callback)
   request.setRequestHeader('Accept', 'application/json');
   request.setRequestHeader('Authorization', 'Bearer ' + token);
   request.send();
-}
+};
 
 app.query = function(url)
 {
@@ -97,7 +97,7 @@ app.query = function(url)
       self.log(JSON.stringify(model));
     };
   });
-}
+};
 
 app.request = function()
 {
@@ -109,7 +109,7 @@ app.request = function()
     });
   }
   this.query();
-}
+};
 
 app.main = function()
 {
@@ -120,7 +120,7 @@ app.main = function()
   } catch(err) {
     this.log(err);
   }
-}
+};
 
 window.onload = function() {
 

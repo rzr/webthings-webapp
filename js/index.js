@@ -64,9 +64,9 @@ function browse(base_url, callback)
 
 function get(endpoint, callback)
 {
-  var request = new XMLHttpRequest();
   var url = window.form.url.value + endpoint;
   var token = localStorage['token'];
+  var request = new XMLHttpRequest();
   request.addEventListener('load', function() {
     callback = callback || {};
     callback(null, this.responseText);

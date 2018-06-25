@@ -7,11 +7,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.*
  */
 
-function log(arg)
+var app = {};
+
+
+//TODO enable this if you want to use brower log only for debuging
+//app.log = console.log;
+
+app.log = function(arg)
 {
   if (arg && arg.name && arg.message) {
     var err = arg;
-    log("exception [" + err.name + "] msg[" + err.message + "]");
+    this.log("exception [" + err.name + "] msg[" + err.message + "]");
   }
   var text = "log: " + arg + "\n";
   console.log(text);
@@ -19,35 +25,36 @@ function log(arg)
   document.form.console.value.scrollTop = document.form.console.value.scrollHeight;
 }
 
-function handleDocument(document)
+app.handleDocument = function(document)
 {
   var parser = new DOMParser();
   var xpath = '/html/body/section/div[2]/code/text()';
   var iterator = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null );
   var thisNode = iterator.iterateNext();
-  log("token: " + thisNode.textContent); //TODO
+  this.log("token: " + thisNode.textContent); //TODO
   localStorage['token'] = thisNode.textContent;
 }
 
-function browse(base_url, callback)
+app.browse = function(base_url, callback)
 {
+  var self = this;
   const delay = 50;
   var url = base_url;
   url += '/oauth/authorize' + '?';
   url += '&client_id=' + 'local-token';
   url += '&scope=' + '/things:readwrite';
   url += '&response_type=code';
-  log("browse: " + url); //TODO
+  this.log("browse: " + url); //TODO
   window.authCount = 0;
   // TODO: check if host alive using xhr
   window.authWin = window.open(url);
-  window.interval = self.setInterval(function () {
+  window.interval = setInterval(function () {
     url = (window.authWin && window.authWin.location
            && window.authWin.location.href )
       ? window.authWin.location.href : undefined;
-    log("wait: " + url); //TODO
+    self.log("wait: " + url); //TODO
     if (url && (url.indexOf('code=') >=0)) {
-      handleDocument(window.authWin.document);
+      self.handleDocument(window.authWin.document);
       window.authCount = 99;
     } else {
       window.authCount++;
@@ -60,9 +67,9 @@ function browse(base_url, callback)
       if (callback) callback();
     }
   }, delay);
-}
+};
 
-function get(endpoint, callback)
+app.get = function(endpoint, callback)
 {
   var url = window.form.url.value + endpoint;
   var token = localStorage['token'];
@@ -71,56 +78,56 @@ function get(endpoint, callback)
     callback = callback || {};
     callback(null, this.responseText);
   });
-  log(url); //TODO
+  this.log(url); //TODO
   request.open('GET', url);
   request.setRequestHeader('Accept', 'application/json');
   request.setRequestHeader('Authorization', 'Bearer ' + token);
   request.send();
 }
 
-function request()
+app.query = function(url)
 {
-  var base_url = window.form.url.value;
-  if (! localStorage['token']) {
-    return browse(base_url, query);
-  }
-  query();
-}
-
-function query(url)
-{
+  var self = this;
   url = (url) || window.form.url.value + window.form.endpoint.value;
-  log("query: " + url);
-  get("/things", function(err, data) {
+  this.log("query: " + url);
+  this.get("/things", function(err, data) {
     var items = data && JSON.parse(data) || [];
     for (index=0; index < items.length; index++) {
       var model = items[index];
-      log(JSON.stringify(model));
+      self.log(JSON.stringify(model));
     };
   });
 }
 
-function request()
+app.request = function()
 {
+  var self = this;
   var base_url = window.form.url.value;
   if (! localStorage['token']) {
-    return browse(base_url, query);
+    return this.browse(base_url, function(){
+      self.query();
+    });
   }
-  query();
+  this.query();
 }
 
-function main()
+app.main = function()
 {
   if (localStorage['url'] ) window.form.url.value = localStorage['url']
   try {
-    request();
-    query();
+    this.request();
+    this.query();
   } catch(err) {
-    log(err);
+    this.log(err);
   }
 }
 
 window.onload = function() {
+
+  var runButton = document.getElementById('run');
+  runButton.addEventListener('click', function() {
+    app.main();
+  });
 
   var clearButton = document.getElementById('clear');
   clearButton.addEventListener('click', function() {
@@ -131,7 +138,7 @@ window.onload = function() {
   forgetButton.addEventListener('click', function() {
     document.form.console.value = '';
     localStorage.clear();
-    log('token forgotten (need auth again)');
+    app.log('token forgotten (need auth again)');
   });
 
   var urlInput = document.getElementById('url');

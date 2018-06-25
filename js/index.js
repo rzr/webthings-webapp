@@ -7,8 +7,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.*
  */
 
-var app = {};
+(function() {
+ // 'use strict';
 
+var app = {
+  isLoading: true,
+  datacontent: document.querySelector('.textarea')
+};
 
 app.log = function(arg)
 {
@@ -282,3 +287,15 @@ window.onload = function() {
   // TODO add settings page to disable (for debuging)
   app.main();
 };
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('service-worker.js').then(function(registration) {
+      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    }, function(err) {
+      console.log('ServiceWorker registration failed: ', err);
+    });
+  });
+}
+})();
+

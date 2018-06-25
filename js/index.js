@@ -92,7 +92,7 @@ app.query = function(url)
   this.log("query: " + url);
   this.get("/things", function(err, data) {
     var items = data && JSON.parse(data) || [];
-    for (index=0; index < items.length; index++) {
+    for (var index=0; index < items.length; index++) {
       var model = items[index];
       self.log(JSON.stringify(model));
     };

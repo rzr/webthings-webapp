@@ -36,7 +36,6 @@ function browse(base_url, callback)
   url += '/oauth/authorize' + '?';
   url += '&client_id=' + 'local-token';
   url += '&scope=' + '/things:readwrite';
-  url += '&state=asdf';
   url += '&response_type=code';
   log("browse: " + url); //TODO
   window.authCount = 0;

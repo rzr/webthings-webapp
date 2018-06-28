@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var dataCacheName = 'webThings-v1';
-var cacheName = 'webthingsPWA-1';
+var cacheName = 'WebThings-0';
+var dataCacheName = 'WebThings-data-0';
 var filesToCache = [
   '/',
   '/index.html',

@@ -164,6 +164,8 @@ window.onload = function() {
   var resetButton = document.getElementById('reset');
   resetButton.addEventListener('click', function() {
     document.form.console.value = '';
+    document.form.url.value = '';
+    document.form.token.value = '';
     localStorage.clear();
     app.log('token forgotten (need auth again)');
   });

@@ -48,9 +48,23 @@ app.browse = function(base_url, callback)
   url += '&response_type=code';
   this.log("browse: " + url); //TODO
   window.authCount = 0;
-  // TODO: check if host alive using xhr
+  window.addEventListener("message", function(ev) {
+    if (ev.data.message && ev.data.message.token) {
+      localStorage['token'] = ev.data.message.token;
+      window.authCount = 98;
+    }
+  });
   window.authWin = window.open(url);
   window.interval = setInterval(function () {
+    // TODO: check if host alive using xhr
+    if (!url || (window.authCount > 60)) {
+      window.clearInterval(window.interval);
+      if (window.authWin) {
+        window.authWin.close();
+      }
+      if (callback) callback();
+    }
+    window.authWin.postMessage({ message: "token" }, "*");
     url = (window.authWin && window.authWin.location
            && window.authWin.location.href )
       ? window.authWin.location.href : undefined;
@@ -60,13 +74,6 @@ app.browse = function(base_url, callback)
       window.authCount = 99;
     } else {
       window.authCount++;
-    }
-    if ( !url || (window.authCount > 60)) {
-      window.clearInterval(window.interval);
-      if (window.authWin) {
-        window.authWin.close();
-      }
-      if (callback) callback();
     }
   }, delay);
 };

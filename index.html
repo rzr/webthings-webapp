@@ -21,24 +21,35 @@
 <div id="main" class="page">
 <div class="contents">
 <h1>WebThings</h1>
+
+<p/>
+
 <form name="form">
+
+
 <input type="button" id="run" value="Run" />
 <input type="button" id="clear" value="Clear" />
-<input type="button" id="forget" value="Forget" />
+<input type="button" id="reset" value="Reset" />
 <p/>
-  
-Base URL: ( ie: https://$name.mozilla-iot.org )<br/>
-<input type="text" id='url' name="url" value="http://gateway.local" onchange="localStorage['url'] = this.value" />
-<p/>
-Endpoint: ( ie: /things/0/properties/on )<br/>
-<input type="text" name="endpoint" value="/things" />
+<input type="text" id="url"
+       placeholder="http://gateway.local:8080"
+       />
+</br>
+<input type="password" id="token"
+       placeholder="Token (to be pasted here)"
+       />
+</br>
+<input type="text" name="endpoint" value=""
+       placeholder="Endpoint: (/things)"
+/>
+
 <p/>
 
 Console:<br />
 <textarea rows="8" cols="40" name=console>
 </textarea>
 
-<p />
+<p/>
 </form>
 </div>
 </div>

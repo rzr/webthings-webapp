@@ -124,7 +124,7 @@ app.request = function()
 {
   var self = this;
   var base_url = window.form.url.value;
-  if (! localStorage['token']) {
+  if (! localStorage['token'] || ! localStorage['token'].length) {
     return this.browse(base_url, function(){
       self.query();
     });
@@ -134,7 +134,6 @@ app.request = function()
 
 app.main = function()
 {
-  if (localStorage['url'] ) window.form.url.value = localStorage['url']
   try {
     this.request();
     this.query();
@@ -155,17 +154,33 @@ window.onload = function() {
     document.form.console.value = '';
   });
 
-  var forgetButton = document.getElementById('forget');
-  forgetButton.addEventListener('click', function() {
+  var resetButton = document.getElementById('reset');
+  resetButton.addEventListener('click', function() {
     document.form.console.value = '';
     localStorage.clear();
     app.log('token forgotten (need auth again)');
   });
 
   var urlInput = document.getElementById('url');
+  if ( localStorage['url'] && localStorage['url'].length ) {
+    window.form.url.value = localStorage['url']
+  } else {
+    window.form.value="http://gateway.local:8080";
+  }
   urlInput.addEventListener('change', function() {
     this.value = this.value.replace(/\/$/, "");
+    localStorage['url'] = this.value;
   });
+
+  var tokenInput = document.getElementById('token');
+  if ( localStorage['token'] && localStorage['token'].length ) {
+    window.form.token.value = localStorage['token']
+  }
+  tokenInput.addEventListener('change', function() {
+    this.value = this.value.replace(/\/$/, "");
+    localStorage['token'] = this.value;
+  });
+
   // add eventListener for tizenhwkey
   document.addEventListener('tizenhwkey', function(e) {
     if (e.keyName === "back") {

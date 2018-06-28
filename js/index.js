@@ -168,6 +168,11 @@ window.onload = function() {
     app.log('token forgotten (need auth again)');
   });
 
+  var aboutButton = document.getElementById('about');
+  aboutButton.addEventListener('click', function() {
+    window.open('README.md');
+  });
+
   var urlInput = document.getElementById('url');
   if ( localStorage['url'] && localStorage['url'].length ) {
     window.form.url.value = localStorage['url']

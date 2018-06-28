@@ -1,0 +1,24 @@
+{
+  "version": "0.0.0",
+  "name": "WebThings WenApp",
+  "description": "A standalone IoT browser",
+  "launch_path": "/index.html",
+  "icons": {
+    "56": "images/56x56/logo.png",
+    "112": "images/112x112/logo.png",
+    "128": "images/128x128/logo.png"
+  },
+  "developer": {
+    "name": "Philippe Coval",
+    "url": "https://rzr.github.io"
+  },
+  "locales": {
+    "en": {
+      "description": "A standalone IoT browser",
+      "developer": {
+        "url": "https://tizenteam.github.io"
+      }
+    }
+  },
+  "default_locale": "en"
+}

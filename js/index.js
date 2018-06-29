@@ -57,7 +57,7 @@ app.browse = function(base_url, callback)
   window.authWin = window.open(url);
   window.interval = setInterval(function () {
     // TODO: check if host alive using xhr
-    if (!url || (window.authCount > 60)) {
+    if (window.authCount > 60) {
       window.clearInterval(window.interval);
       if (window.authWin) {
         window.authWin.close();
@@ -65,15 +65,19 @@ app.browse = function(base_url, callback)
       if (callback) callback();
     }
     window.authWin.postMessage({ message: "token" }, "*");
-    url = (window.authWin && window.authWin.location
-           && window.authWin.location.href )
-      ? window.authWin.location.href : undefined;
-    self.log("wait: " + url); //TODO
-    if (url && (url.indexOf('code=') >=0)) {
-      self.handleDocument(window.authWin.document);
-      window.authCount = 99;
-    } else {
-      window.authCount++;
+    try {
+      url = (window.authWin && window.authWin.location
+             && window.authWin.location.href )
+        ? window.authWin.location.href : undefined;
+      if (url && (url.indexOf('code=') >=0)) {
+        self.handleDocument(window.authWin.document);
+        window.authCount = 99;
+      } else {
+        window.authCount++;
+        self.log("wait: " + url); //TODO
+      }
+    } catch(e) {
+      self.log(e.message);
     }
   }, delay);
 };

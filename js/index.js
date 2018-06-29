@@ -123,6 +123,7 @@ app.query = function(url)
   url = (url) || window.form.url.value + window.form.endpoint.value;
   this.log("query: " + url);
   this.get("/things", function(err, data) {
+    if (err || !data) throw err;
     var items = data && JSON.parse(data) || [];
     for (var index=0; index < items.length; index++) {
       var model = items[index];

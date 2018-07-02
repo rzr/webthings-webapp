@@ -51,6 +51,7 @@ rule/chromium/clean: ${index}
 	HOME="${tmpdir}/$@"\
  chromium-browser --disable-web-security \
 --user-data-dir="${tmpdir}/$@" \
+--disable-extensions \
 "$<"
 
 import:

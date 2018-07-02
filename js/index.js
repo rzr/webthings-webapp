@@ -37,17 +37,15 @@ app.handleDocument = function(document)
   localStorage['token'] = thisNode.textContent;
 };
 
-app.browse = function(base_url, callback)
+app.browse = function(url, callback)
 {
   var self = this;
+  if (localStorage['token'])
+    return;
+  this.log("browse: " + url);
   const delay = 50;
-  var url = base_url;
-  url += '/oauth/authorize' + '?';
-  url += '&client_id=' + 'local-token';
-  url += '&scope=' + '/things:readwrite';
-  url += '&response_type=code';
-  this.log("browse: " + url); //TODO
   window.authCount = 0;
+  // TODO: https://github.com/mozilla-iot/gateway/pull/1149
   window.addEventListener("message", function(ev) {
     if (ev.data.message && ev.data.message.token) {
       localStorage['token'] = ev.data.message.token;
@@ -55,6 +53,9 @@ app.browse = function(base_url, callback)
     }
   });
   window.authWin = window.open(url);
+  if (!window.authWin) {
+    throw "Cant open window: " + url;
+  }
   window.interval = setInterval(function () {
     // TODO: check if host alive using xhr
     if (window.authCount > 60) {
@@ -62,6 +63,7 @@ app.browse = function(base_url, callback)
       if (window.authWin) {
         window.authWin.close();
       }
+      window.form.token.value = localStorage['token'];
       if (callback) callback();
     }
     window.authWin.postMessage({ message: "token" }, "*");
@@ -132,23 +134,90 @@ app.query = function(url)
   });
 };
 
-app.request = function()
+app.request = function(base_url)
 {
   var self = this;
-  var base_url = window.form.url.value;
-  if (! localStorage['token'] || ! localStorage['token'].length) {
-    return this.browse(base_url, function(){
+  this.log("request: " + base_url);
+  if (localStorage['token'] && localStorage['token'].length) {
+    return self.query();
+  }
+  if (!base_url) throw "URL needed";
+  var url = base_url;
+  url += '/oauth/authorize' + '?';
+  url += '&client_id=' + localStorage['client_id'];
+  url += '&scope=' + '/things:readwrite';
+  url += '&response_type=code';
+  if (!window.location.hostname) {
+    return this.browse(url, function(){
       self.query();
     });
+  } else {
+    var wurl = new URL(window.location);
+    var searchParams = new URLSearchParams(wurl.search);
+    var code = searchParams.get('code');
+    let isCallback = (localStorage['state'] === 'callback' );
+    console.log("isCallback" + isCallback);
+    if (!code && !isCallback) {
+      this.log( url );
+      url += '&redirect_uri=' + encodeURIComponent(document.location);
+      localStorage['state'] = 'callback';
+      setTimeout(function(){
+        window.location = url;
+      }, 500);
+    } else if (code && isCallback) {
+      localStorage['state'] = 'token';
+      var url = base_url + "/oauth/token" ;
+      var params = {
+        code: code,
+        grant_type: 'authorization_code',
+        client_id: localStorage['client_id'],
+      };
+      var request = new XMLHttpRequest();
+      request.onreadystatechange = function() {
+        if(request.readyState == 4 && request.status == 200) {
+          localStorage['token'] = JSON.parse(request.responseText).access_token;
+          var pos = window.location.href.indexOf("?");
+          if (pos) {
+            var loc = window.location.href.substring(0, pos);
+            window.history.replaceState({}, document.title, loc);
+          }
+          self.query();
+        }
+      }
+      request.open('POST', url, true);
+      request.setRequestHeader('Content-type', 'application/json');
+      request.setRequestHeader('Accept', 'application/json');
+      request.setRequestHeader('Authorization', 'Basic '
+                               +  window.btoa(localStorage['client_id']
+                                              + ":" + localStorage['secret']));
+      request.send(JSON.stringify(params));
+    } else {
+      localStorage['state'] = 'disconnected';
+    }
   }
-  this.query();
 };
 
 app.main = function()
 {
+  app.log("main: " + localStorage['state']);
+  app.log("main: " + window.location.hostname);
+  // TODO: OAuth update ids here, URLs using file:// will copy from default
+  if (!localStorage['client_id'] || !localStorage['secret'] ) {
+    if (!window.location.hostname) {
+      localStorage['client_id'] = "local-token";
+      localStorage['secret'] = "super secret";
+    } else {
+      //TODO: add GUI to overide default creds:
+      localStorage['client_id'] = window.location.hostname;
+      localStorage['secret'] = window.location.hostname;
+    }
+  }
   try {
-    this.request();
-    this.query();
+    if (!localStorage['token']) {
+      app.request(localStorage['url']);
+    } else {
+      app.query();
+    }
   } catch(err) {
     this.log(err);
   }
@@ -208,4 +277,8 @@ window.onload = function() {
       } catch (ignore) {}
     }
   });
+
+  // Autoconnect
+  // TODO add settings page to disable (for debuging)
+  app.main();
 };

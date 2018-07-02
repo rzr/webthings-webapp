@@ -10,9 +10,6 @@
 var app = {};
 
 
-//TODO enable this if you want to use brower log only for debuging
-//app.log = console.log;
-
 app.log = function(arg)
 {
   if (arg && arg.name && arg.message) {
@@ -24,6 +21,9 @@ app.log = function(arg)
   document.form.console.value += text;
   document.form.console.value.scrollTop = document.form.console.value.scrollHeight;
 };
+
+//TODO enable this if you want to use brower log only for debuging
+//app.log = console.log;
 
 app.handleDocument = function(document)
 {

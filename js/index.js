@@ -8,12 +8,9 @@
  */
 
 (function() {
- // 'use strict';
-
-var app = {
-  isLoading: true,
-  datacontent: document.querySelector('.textarea')
-};
+  // 'use strict';
+app.isLoading = true;
+app.datacontent = document.querySelector('.textarea');
 
 app.log = function(arg)
 {
@@ -23,8 +20,10 @@ app.log = function(arg)
   }
   var text = "log: " + arg + "\n";
   console.log(text);
-  document.form.console.value += text;
-  document.form.console.value.scrollTop = document.form.console.value.scrollHeight;
+  if (document.form && document.form.console) {
+    document.form.console.value += text;
+    document.form.console.value.scrollTop = document.form.console.value.scrollHeight;
+  }
 };
 
 //TODO enable this if you want to use brower log only for debuging
@@ -248,6 +247,11 @@ window.htmlOnLoad = function() {
   var aboutButton = document.getElementById('about');
   aboutButton.addEventListener('click', function() {
     window.open('README.md');
+  });
+
+  var browseButton = document.getElementById('browse');
+  browseButton.addEventListener('click', function() {
+    window.location.href = 'aframe.html';
   });
 
   var urlInput = document.getElementById('url');

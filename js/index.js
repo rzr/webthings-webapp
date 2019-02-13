@@ -114,17 +114,18 @@ app.put = function(endpoint, payload, callback)
     callback = callback || {};
     callback(null, this.responseText);
   });
-    request.open('PUT', url);
+  request.open('PUT', url);
   request.setRequestHeader('Content-Type', 'application/json');
   request.setRequestHeader('Accept', 'application/json');
   request.setRequestHeader('Authorization', 'Bearer ' + token);
   request.send(payload);
 }
 
-app.query = function(url, endpoint, token)
+app.query = function(url, token)
 {
   var self = this;
-  this.get(url, endpoint, token, function(err, data) {
+  console.log('query: ' + url);
+  this.get(url, token, function(err, data) {
     if (err || !data) throw err;
     var items = data && JSON.parse(data) || [];
     for (var index=0; index < items.length; index++) {
@@ -137,11 +138,11 @@ app.query = function(url, endpoint, token)
 app.request = function(base_url)
 {
   var self = this;
+  if (!base_url) throw "URL needed";
   this.log("request: " + base_url);
   if (localStorage['token'] && localStorage['token'].length) {
-    return self.query();
+    return self.query(base_url + localStorage['endpoint']);
   }
-  if (!base_url) throw "URL needed";
   var url = base_url;
   url += '/oauth/authorize' + '?';
   url += '&client_id=' + localStorage['client_id'];
@@ -199,6 +200,7 @@ app.request = function(base_url)
 
 app.main = function()
 {
+  app.log("main: endpoint: " + localStorage['endpoint']);
   app.log("main: " + localStorage['state']);
   app.log("main: " + window.location.hostname);
   // TODO: OAuth update ids here, URLs using file:// will copy from default
@@ -216,7 +218,7 @@ app.main = function()
     if (!localStorage['token']) {
       app.request(localStorage['url']);
     } else {
-      app.query();
+      app.query(localStorage['url'] + localStorage['endpoint'], localStorage['token']);
     }
   } catch(err) {
     this.log(err);
@@ -274,9 +276,19 @@ window.htmlOnLoad = function() {
     localStorage['token'] = this.value;
   });
 
+  var endpointInput = document.getElementById('endpoint');
+  if (localStorage['endpoint']) {
+    window.form.endpoint.value = localStorage['endpoint'];
+  }
+  endpointInput.addEventListener('change', function() {
+    console.log(this.value);
+    this.value = this.value.replace(/\/$/, "");
+    localStorage['endpoint'] = this.value;
+  });
+
   // add eventListener for tizenhwkey
   document.addEventListener('tizenhwkey', function(e) {
-    if (e.keyName === "back") {
+    if (e.keyName === "back" && tizen && tizen.application) {
       try {
         tizen.application.getCurrentApplication().exit();
       } catch (ignore) {}

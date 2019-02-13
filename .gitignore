@@ -1,2 +1,8 @@
 *~
 *.tmp
+*.wgt
+*#
+.buildResult/
+tmp/
+node_modules/
+.#*

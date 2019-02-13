@@ -84,10 +84,8 @@ app.browse = function(url, callback)
   }, delay);
 };
 
-app.get = function(endpoint, callback)
+app.get = function(url, token, callback)
 {
-  var url = window.form.url.value + endpoint;
-  var token = localStorage['token'];
   var request = new XMLHttpRequest();
   request.addEventListener('load', function() {
     callback = callback || {};
@@ -119,12 +117,10 @@ app.put = function(endpoint, payload, callback)
   request.send(payload);
 }
 
-app.query = function(url)
+app.query = function(url, endpoint, token)
 {
   var self = this;
-  url = (url) || window.form.url.value + window.form.endpoint.value;
-  this.log("query: " + url);
-  this.get("/things", function(err, data) {
+  this.get(url, endpoint, token, function(err, data) {
     if (err || !data) throw err;
     var items = data && JSON.parse(data) || [];
     for (var index=0; index < items.length; index++) {
@@ -223,7 +219,7 @@ app.main = function()
   }
 };
 
-window.onload = function() {
+window.htmlOnLoad = function() {
 
   var runButton = document.getElementById('run');
   runButton.addEventListener('click', function() {

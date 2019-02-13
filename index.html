@@ -4,7 +4,7 @@
      Copyright 2018-present Samsung Electronics France SAS, and other contributors
      This Source Code Form is subject to the terms of the Mozilla Public
      License, v. 2.0. If a copy of the MPL was not distributed with this
-     file, You can obtain one at http://mozilla.org/MPL/2.0/.*
+     file, You can obtain one at http://mozilla.org/MPL/2.0/
   -->
 <html lang="en">
 <head>
@@ -19,7 +19,9 @@
 <script src="js/index.js"></script>
 </head>
 
-<body>
+<body
+  onload="htmlOnLoad();"
+  >
 <div id="main" class="page">
 <div class="contents">
 <h1>WebThings</h1>
@@ -49,9 +51,10 @@
 <p/>
 
 Console:<br />
-<textarea rows="8" cols="40" name=console>
+<textarea rows="8" cols="40" name="console">
 </textarea>
-
+<p>
+<a href="aframe.html">A-Frame view</a>
 <p/>
 </form>
 </div>

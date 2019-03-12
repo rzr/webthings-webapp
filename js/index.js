@@ -165,10 +165,9 @@ app.request = function(base_url)
     let isCallback = (localStorage['state'] === 'callback' );
     console.log("isCallback" + isCallback);
     if (!code && !isCallback) {
-      this.log( url );
-      url += '&redirect_uri=' + encodeURIComponent(document.location);
-      localStorage['state'] = 'callback';
-      setTimeout(function(){
+      return setTimeout(function(){
+        url += '&redirect_uri=' + encodeURIComponent(document.location);
+        localStorage['state'] = 'callback';
         window.location = url;
       }, 500);
     } else if (code && isCallback) {

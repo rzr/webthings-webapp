@@ -31,7 +31,6 @@ app.log = function(arg)
 
 app.handleDocument = function(document)
 {
-  var parser = new DOMParser();
   //TODO: https://github.com/mozilla-iot/gateway/pull/1142
   //TODO: document.getElementById('token').textContent;
   var xpath = '/html/body/section/div[2]/code/text()';

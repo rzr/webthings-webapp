@@ -265,6 +265,8 @@ window.htmlOnLoad = function() {
   var urlInput = document.getElementById('url');
   if ( localStorage['url'] && localStorage['url'].length ) {
     window.form.url.value = localStorage['url']
+  } else if (urlInput.value && urlInput.value.length) {
+    localStorage['url'] = urlInput.value;
   } else {
     window.form.value="http://gateway.local:8080";
   }
@@ -285,6 +287,8 @@ window.htmlOnLoad = function() {
   var endpointInput = document.getElementById('endpoint');
   if (localStorage['endpoint']) {
     window.form.endpoint.value = localStorage['endpoint'];
+  } else if (window.form.endpoint.value) {
+    localStorage['endpoint'] = window.form.endpoint.value;
   }
   endpointInput.addEventListener('change', function() {
     console.log(this.value);

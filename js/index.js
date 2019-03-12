@@ -206,9 +206,9 @@ app.request = function(base_url)
 
 app.main = function()
 {
-  app.log("main: endpoint: " + localStorage['endpoint']);
-  app.log("main: " + localStorage['state']);
-  app.log("main: " + window.location.hostname);
+  this.log("main: endpoint: " + localStorage['endpoint']);
+  this.log("main: " + localStorage['state']);
+  this.log("main: " + window.location.hostname);
   // TODO: OAuth update ids here, URLs using file:// will copy from default
   if (!localStorage['client_id'] || !localStorage['secret'] ) {
     if (!window.location.hostname) {

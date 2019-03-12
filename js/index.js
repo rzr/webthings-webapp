@@ -94,7 +94,7 @@ app.get = function(url, token, callback)
     callback = callback || {};
     callback(null, this.responseText);
   });
-  this.log(url); //TODO
+  this.log('url: ' + url); //TODO
   request.open('GET', url);
   request.setRequestHeader('Accept', 'application/json');
   request.setRequestHeader('Authorization', 'Bearer ' + token);
@@ -106,8 +106,8 @@ app.put = function(endpoint, payload, callback)
   var url = window.form.url.value + endpoint;
   var token = localStorage['token'];
   payload = JSON.stringify(payload);
-  this.log(url);
-  this.log(payload);
+  this.log('url: ' + url);
+  this.log('payload: ' + payload);
   var request = new XMLHttpRequest();
   request.addEventListener('load', function() {
     callback = callback || {};
@@ -191,6 +191,7 @@ app.request = function(base_url)
           self.query();
         }
       }
+      this.log('grant: ' + url);
       request.open('POST', url, true);
       request.setRequestHeader('Content-type', 'application/json');
       request.setRequestHeader('Accept', 'application/json');

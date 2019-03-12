@@ -182,6 +182,7 @@ app.request = function(base_url)
       request.onreadystatechange = function() {
         if(request.readyState == 4 && request.status == 200) {
           localStorage['token'] = JSON.parse(request.responseText).access_token;
+          window.form.token.value = localStorage['token']; // TODO
           var pos = window.location.href.indexOf("?");
           if (pos) {
             var loc = window.location.href.substring(0, pos);

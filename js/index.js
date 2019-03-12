@@ -31,13 +31,20 @@ app.log = function(arg)
 
 app.handleDocument = function(document)
 {
+  var token = null;
+  this.log('parse: ' + document);
   //TODO: https://github.com/mozilla-iot/gateway/pull/1142
   //TODO: document.getElementById('token').textContent;
-  var xpath = '/html/body/section/div[2]/code/text()';
-  var iterator = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null );
-  var thisNode = iterator.iterateNext();
-  this.log("token: " + thisNode.textContent); //TODO
-  localStorage['token'] = thisNode.textContent;
+  try {
+    var xpath = '/html/body/section/div[2]/code/text()';
+    var iterator = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null );
+    var thisNode = iterator.iterateNext();
+    token= thisNode.textContent;
+  } catch(err) {
+    this.log('error: ' + err);
+  }
+  this.log("token: " + token); //TODO
+  return token;
 };
 
 app.browse = function(url, callback)
@@ -50,6 +57,7 @@ app.browse = function(url, callback)
   window.authCount = 0;
   // TODO: https://github.com/mozilla-iot/gateway/pull/1149
   window.addEventListener("message", function(ev) {
+    self.log("message:" + ev);
     if (ev.data.message && ev.data.message.token) {
       localStorage['token'] = ev.data.message.token;
       window.authCount = 98;
@@ -60,29 +68,49 @@ app.browse = function(url, callback)
     throw "Cant open window: " + url;
   }
   window.interval = setInterval(function () {
-    // TODO: check if host alive using xhr
+    self.log('loop: ' + window.authCount);
+    //self.log('TODO: check if host alive using xhr');
     if (window.authCount > 60) {
       window.clearInterval(window.interval);
-      if (window.authWin) {
+      if (window.authWin && (window.authCount < 100)) {
         window.authWin.close();
       }
-      window.form.token.value = localStorage['token'];
-      if (callback) callback();
+      if (callback) {
+	callback(null, localStorage['token']);
+      }
     }
-    window.authWin.postMessage({ message: "token" }, "*");
     try {
+      self.log('auth: access authWin may throw exception');
+      self.log('post: win: ' + window.authWin);
+      window.authWin.postMessage({ message: "token" }, "*");
+    } catch(err) {
+      self.log("post: err: " + err);
+    }
+
+    try {
+      self.log('accessing a cross-origin frame: ' + window.authWin.location);
       url = (window.authWin && window.authWin.location
              && window.authWin.location.href )
         ? window.authWin.location.href : undefined;
+      self.log('auth: url: ' + url);
       if (url && (url.indexOf('code=') >=0)) {
-        self.handleDocument(window.authWin.document);
+	localStorage['token'] = self.handleDocument(window.authWin.document);
         window.authCount = 99;
       } else {
         window.authCount++;
         self.log("wait: " + url); //TODO
       }
     } catch(e) {
+      window.authCount = 100;
+      if (e.name === 'SecurityError') {
+	alert('Token should be copied manually from other frame');
+      }
+      self.log(e);
+      self.log(e.name);
       self.log(e.message);
+      if (callback) {
+	callback(e, null);
+      }
     }
   }, delay);
 };
@@ -157,10 +185,16 @@ app.request = function(base_url)
   url += '&scope=' + '/things:readwrite';
   url += '&response_type=code';
   if (!window.location.hostname) {
-    return this.browse(url, function(){
-      self.query();
+    return this.browse(url, function(err, data){
+      if (!err) {
+	if (data) {
+	  window.form.token.value = data;
+	  return self.query();
+	}
+      }
+      self.log('error: browsing: ' + err);
     });
-  } 
+  }
   let isCallback = (localStorage['state'] === 'callback' );
   var code = null;
   var wurl = new URL(document.location);

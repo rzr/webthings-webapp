@@ -137,7 +137,7 @@ app.query = function(url, token)
     for (var index=0; index < items.length; index++) {
       var model = items[index];
       self.log(JSON.stringify(model));
-    };
+    }
   });
 };
 

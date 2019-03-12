@@ -124,6 +124,13 @@ app.query = function(url, token)
 {
   var self = this;
   console.log('query: ' + url);
+  if (!url) {
+    url = localStorage['url'] + localStorage['endpoint'];
+  }
+  if (!token) {
+    token = localStorage['token'];
+  }
+  console.log('query: ' + url);
   this.get(url, token, function(err, data) {
     if (err || !data) throw err;
     var items = data && JSON.parse(data) || [];

@@ -158,12 +158,38 @@ app.request = function(base_url)
     return this.browse(url, function(){
       self.query();
     });
-  } else {
-    var wurl = new URL(window.location);
-    var searchParams = new URLSearchParams(wurl.search);
-    var code = searchParams.get('code');
-    let isCallback = (localStorage['state'] === 'callback' );
-    console.log("isCallback" + isCallback);
+  } 
+  let isCallback = (localStorage['state'] === 'callback' );
+  var code = null;
+  var wurl = new URL(document.location);
+  this.log("isCallback: " + isCallback);
+
+  { // TODO: refactor
+    try {
+      this.log('TODO: URL.document.searchParams: ' + document.URL.searchParams);
+      this.log('TODO: URL.window.searchParams: ' + window.URL.searchParams);
+      this.log('TODO: location: ' + window.location);
+      this.log('TODO: check: ' + wurl.search);
+      wurl.search.replace(/^%3F/, '?');
+      this.log('TODO: workaround: ' + wurl.search);
+      var searchParams = new URLSearchParams(wurl.search);
+      this.log('TODO: searchParms: ' + searchParams);
+      code = searchParams.get('code');
+      this.log('TODO: code: ' + code);
+    } catch(err) {
+      this.log('TODO: err: ' + err);
+      this.log(err);
+    }
+    if (!code && wurl.search) {
+      this.log('TODO: workaround: search: ' + wurl.search);
+      try {
+        code = wurl.search.substring(wurl.search.indexOf('code=')+'code='.length,
+                                     wurl.search.indexOf('&'));
+      } catch(err) {
+        code = null;
+      }
+    }
+
     if (!code && !isCallback) {
       return setTimeout(function(){
         url += '&redirect_uri=' + encodeURIComponent(document.location);

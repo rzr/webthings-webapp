@@ -13,14 +13,16 @@
     <script>var app = { viewer: {} }; </script>
     <script src="js/index.js"></script>
     <script src="js/aframe/index.js"></script>
-     <script>
-AFRAME.registerComponent('console', {
+
+    <script>
+AFRAME.registerComponent('root', {
   init: function () {
-    app.viewer.log = this.el;
-    app.viewer.verbose(document.location);
+    app.viewer.root = this.el;
+    app.viewer.start();
     }
   }
 );
+
 AFRAME.registerComponent('console', {
   init: function () {
     app.viewer.log = this.el;
@@ -33,12 +35,13 @@ AFRAME.registerComponent('console', {
   <body>
     <a-scene background="color: #ECECEC">
       <a-entity root />
-      <a-entity id='console' console
-                text='value: Console'
-                position='0 -2 0'
-                rotation='-90 0 0'
-                scale='4 4 4'
-                />
+      <a-text id="console" console
+              value="console:"
+              position="0 -2 0"
+              rotation="-90 0 0"
+              scale="4 4 4"
+              color="#808080"
+              />
     </a-scene>
   </body>
 </html>

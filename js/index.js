@@ -9,7 +9,7 @@
 
 (function() {
   // 'use strict';
-  app.debug = true; // TODO: set true
+  app.debug = false;
   app.isLoading = true;
   app.datacontent = document.querySelector('.textarea');
   app.localStorage = localStorage;
@@ -73,7 +73,7 @@
         window.authCount = 98;
       }
     });
-    if (!confirm(`Opening: ${url}`)) {
+    if (app.debug && !confirm(`Opening: ${url}`)) {
       return;
     }
     window.authWin = window.open(url);
@@ -250,11 +250,11 @@ ${authorize_endpoint}\
 &redirect_uri=${encodeURIComponent(document.location)}\
 `;
           localStorage.state = 'callback';
-          if (!confirm(`Redirect to: ${redirect_url}`)) {
+          if (app.debug && !confirm(`Redirect to: ${redirect_url}`)) {
             return;
           }
           window.location = redirect_url;
-        }, 5000);
+        }, 500);
       } else if (code && isCallback) {
         localStorage.state = 'token';
         const request_url = `${localStorage.url}/oauth/token`;
@@ -343,7 +343,7 @@ ${authorize_endpoint}\
 
     const browseButton = document.getElementById('browse');
     browseButton.addEventListener('click', function() {
-      window.location.href = './00index.html';
+      window.location.href = (app.debug) ? '00index.html' : 'aframe-ui-widgets.html';
     });
 
     const urlInput = document.getElementById('url');

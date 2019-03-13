@@ -48,12 +48,19 @@
 
     return token;
   };
-
-  app.browse = function(url, callback) {
+   // TODO: endpoint
+  app.browse = function(endpoint, callback) {
     const self = this;
     if (localStorage.token) {
       return;
     }
+    if (!localStorage.url) {
+      throw 'Error: ';
+    }
+    if (!endpoint) {
+      endpoint = localStorage['endpoint'];
+    }
+    let url = localStorage['url'] + endpoint;
     this.log(`browse: ${url}`);
     const delay = 50;
     window.authCount = 0;
@@ -183,14 +190,14 @@
     if (localStorage.token && localStorage.token.length) {
       return self.query(endpoint);
     }
-    let url = `${localStorage.url}\
+    let authorize_endpoint= `\
 /oauth/authorize\
 ?\
 &client_id=${localStorage.client_id}\
 &scope=/things:readwrite\
 &response_type=code`;
     if (!window.location.hostname) {
-      return this.browse(url, function(err, data) {
+      return this.browse(authorize_endpoint, function(err, data) {
         if (!err) {
           if (data) {
             window.form.token.value = data;
@@ -203,18 +210,18 @@
     }
     const isCallback = (localStorage.state === 'callback');
     let code = null;
-    const wurl = new URL(document.location);
+    const url = new URL(document.location);
     this.log(`isCallback: ${isCallback}`);
 
-    if (wurl) { // TODO: refactor
+    if (url) { // TODO: refactor
       try {
         this.log(`TODO: location: ${window.location}`);
         this.log(`TODO: URL.document.URL: ${document.URL}`);
         this.log(`TODO: URL.window.URL: ${window.URL}`);
-        this.log(`TODO: check: ${wurl.search}`);
-        wurl.search.replace(/^%3F/, '?');
-        this.log(`TODO: workaround: ${wurl.search}`);
-        const searchParams = new URLSearchParams(wurl.search);
+        this.log(`TODO: check: ${url.search}`);
+        url.search.replace(/^%3F/, '?');
+        this.log(`TODO: workaround: ${url.search}`);
+        const searchParams = new URLSearchParams(url.search);
         this.log(`TODO: searchParms: ${searchParams}`);
         code = searchParams.get('code');
         this.log(`TODO: code: ${code}`);
@@ -222,12 +229,12 @@
         this.log(`TODO: err: ${err}`);
         this.log(err);
       }
-      if (!code && wurl.search) {
-        this.log(`TODO: workaround: search: ${wurl.search}`);
+      if (!code && url.search) {
+        this.log(`TODO: workaround: search: ${url.search}`);
         try {
-          code = wurl.search.substring(
-            wurl.search.indexOf('code=') + 'code='.length,
-            wurl.search.indexOf('&')
+          code = url.search.substring(
+            url.search.indexOf('code=') + 'code='.length,
+            url.search.indexOf('&')
           );
         } catch (err) {
           code = null;
@@ -236,12 +243,16 @@
 
       if (!code && !isCallback) {
         return setTimeout(function() {
-          url += `&redirect_uri=${encodeURIComponent(document.location)}`;
+          var redirect_url = `\
+${localStorage.url}\
+${endpoint}\
+&redirect_uri=${encodeURIComponent(document.location)}\
+`;
           localStorage.state = 'callback';
-          if (!confirm(`Redirect to: ${url}`)) {
+          if (!confirm(`Redirect to: ${redirect_url}`)) {
             return;
           }
-          window.location = url;
+          window.location = redirect_url;
         }, 5000);
       } else if (code && isCallback) {
         localStorage.state = 'token';

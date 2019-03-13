@@ -27,7 +27,7 @@ AFRAME.registerComponent('console', {
     this.el.setAttribute('text', 'value', value);
     // global viewer object defined in js/aframe/index.js
     viewer.el = this.el;
-    viewer.query(url + endpoint, token);
+    viewer.query(endpoint);
     }
   });
 </script>

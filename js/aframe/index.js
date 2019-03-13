@@ -20,7 +20,7 @@ viewer.position = {x: -viewer.edge.x,
 
 viewer.verbose = !console.log || function(text) {
   console.log(text);
-  var value = app.el.getAttribute('text', value).value;
+  var value = viewer.el.getAttribute('text', value).value;
   value = `${value}\n${text}`;
   viewer.el.setAttribute('text', 'value', value);
 };

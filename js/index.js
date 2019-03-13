@@ -306,7 +306,7 @@ ${authorize_endpoint}\
     }
     try {
       if (!localStorage.token) {
-        app.request('/'); // TODO
+        app.request(localStorage.endpoint); // TODO
       } else {
         app.query(localStorage.endpoint);
       }

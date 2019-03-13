@@ -206,9 +206,9 @@
 
     if (wurl) { // TODO: refactor
       try {
-        this.log(`TODO: URL.document.searchParams: ${document.URL.searchParams}`);
-        this.log(`TODO: URL.window.searchParams: ${window.URL.searchParams}`);
         this.log(`TODO: location: ${window.location}`);
+        this.log(`TODO: URL.document.URL: ${document.URL}`);
+        this.log(`TODO: URL.window.URL: ${window.URL}`);
         this.log(`TODO: check: ${wurl.search}`);
         wurl.search.replace(/^%3F/, '?');
         this.log(`TODO: workaround: ${wurl.search}`);

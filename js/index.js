@@ -44,7 +44,8 @@ app.handleDocument = function(document)
     this.log('error: ' + err);
   }
   this.log("token: " + token); //TODO
-  return token;
+  
+return token;
 };
 
 app.browse = function(url, callback)
@@ -189,7 +190,8 @@ app.request = function(base_url)
       if (!err) {
 	if (data) {
 	  window.form.token.value = data;
-	  return self.query();
+	  
+return self.query();
 	}
       }
       self.log('error: browsing: ' + err);
@@ -219,8 +221,10 @@ app.request = function(base_url)
     if (!code && wurl.search) {
       this.log('TODO: workaround: search: ' + wurl.search);
       try {
-        code = wurl.search.substring(wurl.search.indexOf('code=')+'code='.length,
-                                     wurl.search.indexOf('&'));
+        code = wurl.search.substring(
+wurl.search.indexOf('code=')+'code='.length,
+                                     wurl.search.indexOf('&')
+);
       } catch(err) {
         code = null;
       }

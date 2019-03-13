@@ -18,13 +18,13 @@ viewer.position = {x: -viewer.edge.x,
                    z: -2};
 
 
+viewer.verbose = console.log;
+
 viewer.createPropertyElement = function(model, name) {
   const self = this;
   const property = model.properties[name];
   const type = property.type;
   let el = null;
-  console.log(model);
-  console.log(property);
   const endpoint = `${model.links[0].href}/${name}`;
 
   const view = document.createElement('a-entity');
@@ -38,7 +38,7 @@ viewer.createPropertyElement = function(model, name) {
     el = document.createElement('a-entity');
     el.setAttribute('ui-toggle', 'value', 0);
     el.setAttribute('rotation', '90 0 0');
-  } else if (type === 'number') {
+  } else if ((type === 'number') || (type === 'integer')) {
     el = document.createElement('a-cylinder');
     el.setAttribute('color', '#A0A0FF');
     const number = 1; // TODO
@@ -53,10 +53,11 @@ viewer.createPropertyElement = function(model, name) {
   el.setAttribute('position', '-1 0 0');
   el.addEventListener('change', function(e) {
     if (e.detail) {
-      const payload = {on: (e.detail.value !== 0)};
+      const payload = {};
+      payload[name] = !!(e.detail.value !== 0);
       app.put(endpoint, payload, function(res, data) {
         if (!res) {
-          console.log(data);
+          console.error(data);
         }
       });
     } else {
@@ -72,7 +73,6 @@ viewer.createPropertyElement = function(model, name) {
 
 viewer.updateView = function(model, name, view) {
   const property = model.properties[name];
-  console.log(property);
   const endpoint = property.links[0].href;
   const type = property.type;
   const el = view.children[0];
@@ -90,7 +90,7 @@ viewer.updateView = function(model, name, view) {
           el.setAttribute('ui-toggle', 'value', value);
           el.emit('change', {value: value});
         } catch (e) {
-          console.log(`error: ${e}`);
+          console.error(`error: ${e}`);
         }
       } else if (type === 'string') {
         let t = view.getAttribute('text', 'value').value;
@@ -102,7 +102,7 @@ viewer.updateView = function(model, name, view) {
 };
 
 
-viewer.appendThing = function(model) {
+viewer.appendProperties = function(model) {
   const view = null;
   let propertyName = null;
   for (propertyName in model.properties) {
@@ -110,7 +110,7 @@ viewer.appendThing = function(model) {
     try {
       el.emit('change');
     } catch (err) {
-      console.log(`ignore: ${err}`);
+      console.error(`ignore: ${err}`);
     }
     el.setAttribute('position', `${viewer.position.x} ${viewer.position.y} ${viewer.position.z}`);
     viewer.el.appendChild(el);
@@ -126,50 +126,35 @@ viewer.appendThing = function(model) {
     viewer.position.y = -viewer.edge.y;
   }
 
-
   return view;
 };
 
 
-viewer.thingQuery = function(endpoint) {
-  console.log(`log: query: ${endpoint}`);
-  app.get(endpoint, function(err, data) {
-    if (err) {
-      throw err;
-    }
-    const object = data && JSON.parse(data);
-    const items = Object.keys(object) || [];
+viewer.handleResponse = function(err, data) {
+  const self = viewer;
+  self.verbose(`handleResponse: ${typeof data}`);
+  if (err || !data) {
+    console.error(err);
+    throw err;
+  }
+  let model = data;
+
+  if (typeof data === 'string' && data) {
+    model = data && JSON.parse(data);
+  }
+
+  if (Array.isArray(model)) {
     let index;
-    for (index = 0; index < items.length; index++) {
-      const model = object[items[index]];
-      model.local = {};
-      console.log(model);
+    for (index = 0; index < model.length; index++) {
+      viewer.handleResponse(err, model[index]);
     }
-  });
+  } else {
+    self.appendProperties(model);
+  }
 };
 
 
 viewer.query = function(endpoint) {
-  const self = this;
-  console.log(`log: query: ${endpoint}`);
-  app.get(endpoint, function(err, data) {
-    if (err) {
-      throw err;
-    }
-    console.log(data);
-    const items = data && JSON.parse(data) || [];
-    let index;
-    for (index = 0; index < items.length; index++) {
-      const model = items[index];
-      model.local = {};
-      if (model.type === 'thing') {
-        console.log(model);
-        endpoint = `${model.href}/properties`;
-        // model.local.view =
-        // viewer.thingQuery(endpoint);
-      } else {
-        self.appendThing(model);
-      }
-    }
-  });
+  this.verbose(`log: query: ${endpoint}`);
+  app.get(endpoint, viewer.handleResponse);
 };

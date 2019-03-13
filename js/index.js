@@ -65,7 +65,7 @@
         window.authCount = 98;
       }
     });
-    this.log(`Opening: ${url}`);
+    if (! confirm(`Opening: ${url}`)) return;
     window.authWin = window.open(url);
     if (!window.authWin) {
       throw `Can't open window: ${url}`;
@@ -236,8 +236,9 @@
         return setTimeout(function() {
           url += `&redirect_uri=${encodeURIComponent(document.location)}`;
           localStorage.state = 'callback';
+          if (!confirm(`Redirect to: ${url}`) return;
           window.location = url;
-        }, 500);
+        }, 5000);
       } else if (code && isCallback) {
         localStorage.state = 'token';
         const request_url = `${localStorage.url}/oauth/token`;

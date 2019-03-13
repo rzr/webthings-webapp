@@ -9,9 +9,14 @@
 
 var viewer = {};
 viewer.count = 0;
-viewer.position = { x: -2,
-y: -2,
-z: 0 };
+viewer.edge = { x: 2,
+                y: 1,
+                z: 2 };
+
+viewer.position = { x: -viewer.edge.x,
+                    y: -viewer.edge.y,
+                    z: -2 };
+
 
 viewer.createPropertyElement = function (model, name)
 {
@@ -23,7 +28,7 @@ viewer.createPropertyElement = function (model, name)
   let view = document.createElement( "a-entity" );
   view.setAttribute("text", "value", `\n${model.name}/${property.title} (${property.type})`);
   view.setAttribute("text", "color", (property.readOnly) ? "#FFA0A0" : '#A0FFA0');
-  
+
   var id = `widget-${viewer.count++}`;
   console.log(id);
   if (type === 'boolean') {
@@ -48,70 +53,22 @@ viewer.createPropertyElement = function (model, name)
     if (e.detail) {
       var payload = { on: e.detail.value !== 0 };
       app.put(property.links[0].href, payload, function(res, data) {
-	if (!res) {
-	  console.log(data);
-	} });
+        if (!res) {
+          console.log(data);
+        } });
     } else {
       self.updateView(model, name, view);
     }
   });
   view.setAttribute("id", `view-${id}`);
   view.appendChild(el);
-  
-  if (false) {
-  if (!false &&  type === 'boolean')
-      setTimeout(function(){
-	console.log('emit{' + id);
-	var value = 0;
-	var view = document.querySelector(`#view-${id}`);
-	view.setAttribute('text', 'value', `TODO: ${id}=${value}`);
-	var el = document.querySelector(`#${id}`);
-	console.log(el);
-	console.log(el.getAttribute("value"));
-	console.log(el.getAttribute("ui-toggle"));
-	el.setAttribute('ui-toggle', "value", 0);
-	el.setAttribute('scale', [
-2,
-2,
-2
-]);
-	el.setAttribute('rotation', [
-0,
-90,
-0
-]);
-	console.log(el.getAttribute("ui-toggle"));
-	el.setAttribute('color', "#00FF00");
-	//el.emit('update', {value: 0});
-	console.log('emit}');
-    }, 4000);
 
-
-    if (!false &&  type === 'number')
-      setTimeout(function(){
-	//console.log('emit{' + id);
-	var el = document.querySelector(`#${id}`);
-	//console.log(el);
-	//console.log(el.getAttribute("color"));
-	el.setAttribute('scale', [
-1,
-2,
-3
-] );
-	el.setAttribute('color', "#00FF00");
-	el.emit('change');
-	//el.emit('change', {color: "#00FF00"});
-	console.log('emit}');
-    }, 4000);
-  }
-  
-return view;
+  return view;
 }
 
 
 viewer.updateView = function(model, name, view)
 {
-  var self = this;
   var property = model.properties[name];
   console.log(property);
   var endpoint = property.links[0].href;
@@ -119,8 +76,6 @@ viewer.updateView = function(model, name, view)
   console.log(url);
   let type = property.type;
   let el = view.children[0];
-  console.log('~~~~~~');
-  console.log(el);
 
   app.get(url, function(err, data) {
     if (!err) {
@@ -129,25 +84,18 @@ viewer.updateView = function(model, name, view)
       view.setAttribute("text", "value", text);
 
       if (type === 'boolean') {
-	console.log('~~~ ' + data);
-	try {
-	  var value = JSON.parse(data)[name];
-	  value = (value) ? 1 : 0;
-	  var el = view.children[0];
-	  console.log(el.getAttribute('id'));
-	  console.log(el.getAttribute('ui-toggle'));
-	  el.setAttribute('ui-toggle', "value", value);
-	  console.log(el.getAttribute('ui-toggle'));
-	  el.emit('change', { value: value });
-	} catch(err) {
-	  console.log('TODO:' + err);
-	}
+        try {
+          let value = JSON.parse(data)[name];
+          value = (value) ? 1 : 0;
+          el.setAttribute('ui-toggle', "value", value);
+          el.emit('change', { value: value });
+        } catch (e) {
+          console.log('error: ' + e);
+        }
       } else if (type === 'string') {
-	console.log('########'  + data );
-	let text = view.getAttribute('text', 'value').value;
-	text = `\n${text}\n${data})`;
-	view.setAttribute("text", "value", text);
-	//view.emit('change', {value: text});
+        let t = view.getAttribute('text', 'value').value;
+        t = `\n${text}\n${data})`;
+        view.setAttribute("text", "value", t);
       }
     }
   });
@@ -156,41 +104,39 @@ viewer.updateView = function(model, name, view)
 
 viewer.appendThing = function (model)
 {
-  var el = null;
-  console.log('createViewOnOffSwitch: ' + model.name);
-  for (name in model.properties){
-    var el = this.createPropertyElement(model, name);
-    try {
-      el.emit('change');
-    } catch(err) {
-      console.log('ignore: ' + err);
+  var view = null;
+  var propertyName = null;
+  for (propertyName in model.properties) {
+      var el = this.createPropertyElement(model, propertyName);
+      try {
+        el.emit('change');
+      } catch(err) {
+        console.log('ignore: ' + err);
+      }
+      el.setAttribute("position", viewer.position.x + ' ' + viewer.position.y+ ' ' + viewer.position.z );
+      viewer.el.appendChild(el);
+      viewer.position.y +=0.4;
     }
-    el.setAttribute("position", viewer.position.x + ' ' + viewer.position.y+ ' ' + viewer.position.z );
-    viewer.el.appendChild(el);
-    viewer.position.y +=0.4;
-  }
-  if (viewer.position.y > 2){
-    viewer.position.x += 2;
-    viewer.position.y = 0;
-  }
-  if (viewer.position.x > 2){
-    viewer.position.z -= 2;
-    viewer.position.x = 0;
-    viewer.position.y = 0;
-  }
+    if (viewer.position.y > viewer.edge.y){
+      viewer.position.x += 2;
+      viewer.position.y = -viewer.edge.y;
+    }
+    if (viewer.position.x > viewer.edge.x){
+      viewer.position.x = -viewer.edge.x;
+      viewer.position.z -= viewer.edge.z;
+      viewer.position.y = -viewer.edge.y;
+    }
 
-
-  return el;
+  
+  return view;
 }
 
 
-viewer.thingQuery = function(url, token)
+viewer.thingQuery = function(endpoint)
 {
-  let self = this;
-  console.log('log: query: ' + url);
-  app.get(url, function(err, data) {
+  console.log('log: query: ' + endpoint);
+  app.get(endpoint, function(err, data) {
     if (err) throw err;
-    console.log(data);
     let object = data && JSON.parse(data);
     let items = Object.keys(object) || [];
     let index;
@@ -203,11 +149,11 @@ viewer.thingQuery = function(url, token)
 }
 
 
-viewer.query = function(url, token)
+viewer.query = function(endpoint)
 {
   let self = this;
-  console.log('log: query: ' + url);
-  app.get(url, function(err, data) {
+  console.log('log: query: ' + endpoint);
+  app.get(endpoint, function(err, data) {
     if (err) throw err;
     console.log(data);
     let items = data && JSON.parse(data) || [];
@@ -217,12 +163,11 @@ viewer.query = function(url, token)
       model.local = {};
       if (model.type === "thing") {
         console.log(model);
-        url = localStorage['url'] + model.href + '/properties';
+        endpoint = model.href + '/properties';
         //model.local.view = viewer.thingQuery(url, token); //TODO
       } else {
-	model.local.view = self.appendThing(model);
-      } 
+        self.appendThing(model);
+      }
     }
   });
 }
-

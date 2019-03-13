@@ -11,49 +11,44 @@
     <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mayognaise/aframe-mouse-cursor-component@master/dist/aframe-mouse-cursor-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/TizenTeam/aframe-ui-widgets@sandbox/rzr/review/master/dist/aframe-ui-widgets.min.js" defer></script> 
-    <script>var app = {}; </script>
+    <script>var app = { viewer: { el: null } }; </script>
     <script src="js/index.js"></script>
     <script src="js/aframe/index.js"></script>
 
   </head>
 <script>
+AFRAME.registerComponent('app', {
+init: function () {
+  app.viewer.root = this.el;
+  app.viewer.start();
+}
+});
+
 AFRAME.registerComponent('console', {
-  init: function () {
-    if (!localStorage['url']){
-      console.warn( "Gateway token unset. Visit your gateway Settings -> Developer -> Create local authorization" );
-      return;
-    }
-    let url = localStorage['url'];
-    let endpoint = localStorage['endpoint'] || '/things';
-    let token = localStorage['token'];
-    let value = `Loading: ${url}`;
-    this.el.setAttribute('text', 'value', value);
-    // global viewer object defined in js/aframe/index.js
-    viewer.el = this.el;
-    viewer.query(endpoint, token);
-    }
-  });
+init: function () {
+  app.viewer.log = this.el;
+  app.viewer.verbose(document.location);
+}
+});
 </script>
 <body>
-  <a-scene retain-camera debug stats="false">
+  <a-scene retain-camera stats="false">
     <a-sky color="#333333"></a-sky>
 
-    <!-- Hands -->
-    <a-entity hand-controls="left"></a-entity>
-    <a-entity hand-controls="right"></a-entity>
-    
-    <a-entity console
-                text='value: Console'
-                position="1, 0, 10"
-                scale="10, 10, 10"
-                />
+        <a-entity app
+              />
 
-     <a-entity position="0 1 0" rotation="0 0 0">
-     </a-entity>
-
-      <a-camera mouse-cursor wasd-controls>
+      <a-camera mouse-cursor>
         <a-cursor></a-cursor>
       </a-camera>
+      
+          <a-entity id='console' console
+                    text='value: Console'
+                    position='0 -2 0'
+                    rotation='-90 0 0'
+                    scale='4 4 4'
+                    />
+
     </a-scene>
   </body>
 </html>

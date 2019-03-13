@@ -236,7 +236,8 @@
         return setTimeout(function() {
           url += `&redirect_uri=${encodeURIComponent(document.location)}`;
           localStorage.state = 'callback';
-          if (!confirm(`Redirect to: ${url}`) return;
+          if (!confirm(`Redirect to: ${url}`))
+            return;
           window.location = url;
         }, 5000);
       } else if (code && isCallback) {

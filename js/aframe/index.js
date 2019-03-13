@@ -7,22 +7,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/
  */
 
-const viewer = {};
+const viewer = app.viewer;
+
 viewer.count = 0;
 viewer.edge = {x: 2,
                y: 1,
                z: 2};
-
 viewer.position = {x: -viewer.edge.x,
                    y: -viewer.edge.y,
                    z: -2};
 
-
 viewer.verbose = !console.log || function(text) {
   console.log(text);
-  var value = viewer.el.getAttribute('text', value).value;
-  value = `${value}\n${text}`;
-  viewer.el.setAttribute('text', 'value', value);
+  if (this.log) {
+    var value = this.log.getAttribute('text', value).value || '';
+    value = `${value}\n${text}`;
+    this.log.setAttribute('text', 'value', value);
+  }
 };
 
 
@@ -39,7 +40,7 @@ viewer.createPropertyElement = function(model, name) {
   view.setAttribute('text', 'color',
                     (property.readOnly) ? '#FFA0A0' : '#A0FFA0');
 
-  const id = `${viewer.count++}`;
+  const id = `${this.count++}`;
   if (type === 'boolean') {
     el = document.createElement('a-entity');
     el.setAttribute('ui-toggle', 'value', 0);
@@ -118,18 +119,18 @@ viewer.appendProperties = function(model) {
     } catch (err) {
       console.error(`ignore: ${err}`);
     }
-    el.setAttribute('position', `${viewer.position.x} ${viewer.position.y} ${viewer.position.z}`);
-    viewer.el.appendChild(el);
-    viewer.position.y += 0.4;
+    el.setAttribute('position', `${this.position.x} ${this.position.y} ${this.position.z}`);
+    this.root.appendChild(el);
+    this.position.y += 0.4;
   }
-  if (viewer.position.y > viewer.edge.y) {
-    viewer.position.x += 2;
-    viewer.position.y = -viewer.edge.y;
+  if (this.position.y > this.edge.y) {
+    this.position.x += 2;
+    this.position.y = -this.edge.y;
   }
-  if (viewer.position.x > viewer.edge.x) {
-    viewer.position.x = -viewer.edge.x;
-    viewer.position.z -= viewer.edge.z;
-    viewer.position.y = -viewer.edge.y;
+  if (this.position.x > this.edge.x) {
+    this.position.x = -this.edge.x;
+    this.position.z -= this.edge.z;
+    this.position.y = -this.edge.y;
   }
 
   return view;
@@ -161,6 +162,20 @@ viewer.handleResponse = function(err, data) {
 
 
 viewer.query = function(endpoint) {
+  if (!endpoint) {
+    endpoint = localStorage.endpoint;
+  }
   this.verbose(`log: query: ${endpoint}`);
   app.get(endpoint, viewer.handleResponse);
+};
+
+
+viewer.start = function() {
+  this.verbose(`start: ${localStorage.url}`);
+  if (!localStorage.url) {
+    console.warn('Gateway token unset. Visit your gateway Settings -> Developer -> Create local authorization');
+    window.location = 'index.html';
+  } else {
+    this.query();
+  }
 };

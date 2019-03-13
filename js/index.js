@@ -65,7 +65,9 @@
         window.authCount = 98;
       }
     });
-    if (! confirm(`Opening: ${url}`)) return;
+    if (!confirm(`Opening: ${url}`)) {
+      return;
+    }
     window.authWin = window.open(url);
     if (!window.authWin) {
       throw `Can't open window: ${url}`;
@@ -236,8 +238,9 @@
         return setTimeout(function() {
           url += `&redirect_uri=${encodeURIComponent(document.location)}`;
           localStorage.state = 'callback';
-          if (!confirm(`Redirect to: ${url}`))
+          if (!confirm(`Redirect to: ${url}`)) {
             return;
+          }
           window.location = url;
         }, 5000);
       } else if (code && isCallback) {

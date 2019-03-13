@@ -28,8 +28,10 @@ viewer.createPropertyElement = function(model, name) {
   const endpoint = `${model.links[0].href}/${name}`;
 
   const view = document.createElement('a-entity');
-  view.setAttribute('text', 'value', `\n${model.name}/${property.title} (${property.type})`);
-  view.setAttribute('text', 'color', (property.readOnly) ? '#FFA0A0' : '#A0FFA0');
+  view.setAttribute('text', 'value',
+                    `\n${model.name}/${property.title} (${property.type})`);
+  view.setAttribute('text', 'color',
+                    (property.readOnly) ? '#FFA0A0' : '#A0FFA0');
 
   const id = `${viewer.count++}`;
   if (type === 'boolean') {

@@ -32,7 +32,7 @@ viewer.createPropertyElement = function (model, name)
   view.setAttribute("text", "value", `\n${model.name}/${property.title} (${property.type})`);
   view.setAttribute("text", "color", (property.readOnly) ? "#FFA0A0" : '#A0FFA0');
 
-  var id = `widget-${viewer.count++}`;
+  var id = `${viewer.count++}`;
   if (type === 'boolean') {
     el = document.createElement( "a-entity" );
     el.setAttribute("ui-toggle", "value", 0);
@@ -48,7 +48,7 @@ viewer.createPropertyElement = function (model, name)
     el.setAttribute("color", "#FF0000");
     el.setAttribute("radius", "0.1");
   }
-  el.setAttribute("id", id);
+  el.setAttribute("id", `widget-${id}`);
   el.setAttribute("position", "-1 0 0");
   el.addEventListener('change', function(e) {
     if (e.detail) {

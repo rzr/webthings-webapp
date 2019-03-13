@@ -11,7 +11,7 @@ var app = {};
 
 app.isLoading = true;
 app.datacontent = document.querySelector('.textarea');
-
+app.localStorage = localStorage;
 app.log = function(arg)
 {
   if (arg && arg.name && arg.message) {
@@ -87,14 +87,16 @@ app.browse = function(url, callback)
   }, delay);
 };
 
-app.get = function(url, token, callback)
+app.get = function(url, callback)
 {
+  this.log('url: ' + url); //TODO
+  var token = localStorage['token'];
   var request = new XMLHttpRequest();
   request.addEventListener('load', function() {
-    callback = callback || {};
-    callback(null, this.responseText);
+    if (callback) {
+      callback(null, this.responseText);
+    }
   });
-  this.log('url: ' + url); //TODO
   request.open('GET', url);
   request.setRequestHeader('Accept', 'application/json');
   request.setRequestHeader('Authorization', 'Bearer ' + token);
@@ -103,7 +105,7 @@ app.get = function(url, token, callback)
 
 app.put = function(endpoint, payload, callback)
 {
-  var url = window.form.url.value + endpoint;
+  var url = localStorage['url'] + endpoint;
   var token = localStorage['token'];
   payload = JSON.stringify(payload);
   this.log('url: ' + url);
@@ -131,7 +133,7 @@ app.query = function(url, token)
     token = localStorage['token'];
   }
   console.log('query: ' + url);
-  this.get(url, token, function(err, data) {
+  this.get(url, function(err, data) {
     if (err || !data) throw err;
     var items = data && JSON.parse(data) || [];
     for (var index=0; index < items.length; index++) {

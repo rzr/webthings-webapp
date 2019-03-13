@@ -10,7 +10,7 @@
 (function() {
 // 'use strict';
 app.isLoading = true;
-app.datacontent = document.querySelector('.textarea');
+app.datacontent = document.querySelector(".textarea");
 app.localStorage = localStorage;
 app.log = function(arg)
 {
@@ -32,16 +32,16 @@ app.log = function(arg)
 app.handleDocument = function(document)
 {
   var token = null;
-  this.log('parse: ' + document);
+  this.log("parse: " + document);
   //TODO: https://github.com/mozilla-iot/gateway/pull/1142
   //TODO: document.getElementById('token').textContent;
   try {
-    var xpath = '/html/body/section/div[2]/code/text()';
+    var xpath = "/html/body/section/div[2]/code/text()";
     var iterator = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null );
     var thisNode = iterator.iterateNext();
     token= thisNode.textContent;
   } catch(err) {
-    this.log('error: ' + err);
+    this.log("error: " + err);
   }
   this.log("token: " + token); //TODO
 
@@ -51,7 +51,7 @@ app.handleDocument = function(document)
 app.browse = function(url, callback)
 {
   var self = this;
-  if (localStorage['token'])
+  if (localStorage["token"])
     return;
   this.log("browse: " + url);
   const delay = 50;
@@ -60,17 +60,17 @@ app.browse = function(url, callback)
   window.addEventListener("message", function(ev) {
     self.log("message:" + ev);
     if (ev.data.message && ev.data.message.token) {
-      localStorage['token'] = ev.data.message.token;
+      localStorage["token"] = ev.data.message.token;
       window.authCount = 98;
     }
   });
-  this.log('Opening: ' + url);
+  this.log("Opening: " + url);
   window.authWin = window.open(url);
   if (!window.authWin) {
     throw "Can't open window: " + url;
   }
   window.interval = setInterval(function () {
-    self.log('loop: ' + window.authCount);
+    self.log("loop: " + window.authCount);
     //self.log('TODO: check if host alive using xhr');
     if (window.authCount > 60) {
       window.clearInterval(window.interval);
@@ -78,25 +78,25 @@ app.browse = function(url, callback)
         window.authWin.close();
       }
       if (callback) {
-        callback(null, localStorage['token']);
+        callback(null, localStorage["token"]);
       }
     }
     try {
-      self.log('auth: access authWin may throw exception');
-      self.log('post: win: ' + window.authWin);
-      window.authWin.postMessage({ message: "token" }, "*");
+      self.log("auth: access authWin may throw exception");
+      self.log("post: win: " + window.authWin);
+      window.authWin.postMessage({ "message": "token" }, "*");
     } catch(err) {
       self.log("post: err: " + err);
     }
 
     try {
-      self.log('accessing a cross-origin frame: ' + window.authWin.location);
+      self.log("accessing a cross-origin frame: " + window.authWin.location);
       url = (window.authWin && window.authWin.location
              && window.authWin.location.href )
         ? window.authWin.location.href : undefined;
-      self.log('auth: url: ' + url);
-      if (url && (url.indexOf('code=') >=0)) {
-        localStorage['token'] = self.handleDocument(window.authWin.document);
+      self.log("auth: url: " + url);
+      if (url && (url.indexOf("code=") >=0)) {
+        localStorage["token"] = self.handleDocument(window.authWin.document);
         window.authCount = 99;
       } else {
         window.authCount++;
@@ -104,8 +104,8 @@ app.browse = function(url, callback)
       }
     } catch(e) {
       window.authCount = 100;
-      if (e.name === 'SecurityError') {
-        alert('Token should be copied manually from other frame');
+      if (e.name === "SecurityError") {
+        alert("Token should be copied manually from other frame");
       }
       self.log(e);
       self.log(e.name);
@@ -119,49 +119,49 @@ app.browse = function(url, callback)
 
 app.get = function(endpoint, callback)
 {
-  var url = localStorage['url'] + endpoint;
-  this.log('url: ' + url); //TODO
-  var token = localStorage['token'];
+  var url = localStorage["url"] + endpoint;
+  this.log("url: " + url); //TODO
+  var token = localStorage["token"];
   var request = new XMLHttpRequest();
-  request.addEventListener('load', function() {
+  request.addEventListener("load", function() {
     if (callback) {
       callback(null, this.responseText);
     }
   });
-  request.open('GET', url);
-  request.setRequestHeader('Accept', 'application/json');
-  request.setRequestHeader('Authorization', 'Bearer ' + token);
+  request.open("GET", url);
+  request.setRequestHeader("Accept", "application/json");
+  request.setRequestHeader("Authorization", "Bearer " + token);
   request.send();
 };
 
 app.put = function(endpoint, payload, callback)
 {
-  var url = localStorage['url'] + endpoint;
-  var token = localStorage['token'];
+  var url = localStorage["url"] + endpoint;
+  var token = localStorage["token"];
   payload = JSON.stringify(payload);
-  this.log('url: ' + url);
-  this.log('payload: ' + payload);
+  this.log("url: " + url);
+  this.log("payload: " + payload);
   var request = new XMLHttpRequest();
-  request.addEventListener('load', function() {
+  request.addEventListener("load", function() {
     callback = callback || {};
     callback(null, this.responseText);
   });
-  request.open('PUT', url);
-  request.setRequestHeader('Content-Type', 'application/json');
-  request.setRequestHeader('Accept', 'application/json');
-  request.setRequestHeader('Authorization', 'Bearer ' + token);
+  request.open("PUT", url);
+  request.setRequestHeader("Content-Type", "application/json");
+  request.setRequestHeader("Accept", "application/json");
+  request.setRequestHeader("Authorization", "Bearer " + token);
   request.send(payload);
 }
 
 app.query = function(endpoint, token)
 {
   var self = this;
-  console.log('query: ' + endpoint);
+  console.log("query: " + endpoint);
 
   if (!token) {
-    token = localStorage['token'];
+    token = localStorage["token"];
   }
-  console.log('query: ' + url);
+  console.log("query: " + url);
   this.get(endpoint, function(err, data) {
     if (err || !data) throw err;
     var items = data && JSON.parse(data) || [];
@@ -177,54 +177,55 @@ app.request = function(endpoint)
   var self = this;
   this.log("request: " + endpoint);
   if (!endpoint) {
-    endpoint = localStorage['endpoint'];
+    endpoint = localStorage["endpoint"];
   }
-  if (localStorage['token'] && localStorage['token'].length) {
+  if (localStorage["token"] && localStorage["token"].length) {
     return self.query(endpoint);
   }
-  var url = localStorage['url'];
-  url += '/oauth/authorize' + '?';
-  url += '&client_id=' + localStorage['client_id'];
-  url += '&scope=' + '/things:readwrite';
-  url += '&response_type=code';
+  var url = localStorage["url"];
+  url += "/oauth/authorize" + "?";
+  url += "&client_id=" + localStorage["client_id"];
+  url += "&scope=" + "/things:readwrite";
+  url += "&response_type=code";
   if (!window.location.hostname) {
     return this.browse(url, function(err, data){
       if (!err) {
         if (data) {
           window.form.token.value = data;
-          return self.query(endpoint);
+          
+return self.query(endpoint);
         }
       }
-      self.log('error: browsing: ' + err);
+      self.log("error: browsing: " + err);
     });
   }
-  let isCallback = (localStorage['state'] === 'callback' );
+  let isCallback = (localStorage["state"] === "callback" );
   var code = null;
   var wurl = new URL(document.location);
   this.log("isCallback: " + isCallback);
 
   if (wurl) { // TODO: refactor
     try {
-      this.log('TODO: URL.document.searchParams: ' + document.URL.searchParams);
-      this.log('TODO: URL.window.searchParams: ' + window.URL.searchParams);
-      this.log('TODO: location: ' + window.location);
-      this.log('TODO: check: ' + wurl.search);
-      wurl.search.replace(/^%3F/, '?');
-      this.log('TODO: workaround: ' + wurl.search);
+      this.log("TODO: URL.document.searchParams: " + document.URL.searchParams);
+      this.log("TODO: URL.window.searchParams: " + window.URL.searchParams);
+      this.log("TODO: location: " + window.location);
+      this.log("TODO: check: " + wurl.search);
+      wurl.search.replace(/^%3F/, "?");
+      this.log("TODO: workaround: " + wurl.search);
       var searchParams = new URLSearchParams(wurl.search);
-      this.log('TODO: searchParms: ' + searchParams);
-      code = searchParams.get('code');
-      this.log('TODO: code: ' + code);
+      this.log("TODO: searchParms: " + searchParams);
+      code = searchParams.get("code");
+      this.log("TODO: code: " + code);
     } catch(err) {
-      this.log('TODO: err: ' + err);
+      this.log("TODO: err: " + err);
       this.log(err);
     }
     if (!code && wurl.search) {
-      this.log('TODO: workaround: search: ' + wurl.search);
+      this.log("TODO: workaround: search: " + wurl.search);
       try {
         code = wurl.search.substring(
-          wurl.search.indexOf('code=')+'code='.length,
-          wurl.search.indexOf('&')
+          wurl.search.indexOf("code=")+"code=".length,
+          wurl.search.indexOf("&")
         );
       } catch(err) {
         code = null;
@@ -233,23 +234,23 @@ app.request = function(endpoint)
 
     if (!code && !isCallback) {
       return setTimeout(function(){
-        url += '&redirect_uri=' + encodeURIComponent(document.location);
-        localStorage['state'] = 'callback';
+        url += "&redirect_uri=" + encodeURIComponent(document.location);
+        localStorage["state"] = "callback";
         window.location = url;
       }, 500);
     } else if (code && isCallback) {
-      localStorage['state'] = 'token';
-      var request_url = localStorage['url'] + "/oauth/token" ;
+      localStorage["state"] = "token";
+      var request_url = localStorage["url"] + "/oauth/token" ;
       var params = {
-        code: code,
-        grant_type: 'authorization_code',
-        client_id: localStorage['client_id'],
+        "code": code,
+        "grant_type": "authorization_code",
+        "client_id": localStorage["client_id"],
       };
       var request = new XMLHttpRequest();
       request.onreadystatechange = function() {
         if(request.readyState == 4 && request.status == 200) {
-          localStorage['token'] = JSON.parse(request.responseText).access_token;
-          window.form.token.value = localStorage['token']; // TODO
+          localStorage["token"] = JSON.parse(request.responseText).access_token;
+          window.form.token.value = localStorage["token"]; // TODO
           var pos = window.location.href.indexOf("?");
           if (pos) {
             var loc = window.location.href.substring(0, pos);
@@ -258,41 +259,41 @@ app.request = function(endpoint)
           self.query(endpoint);
         }
       }
-      this.log('grant: ' + request_url);
-      request.open('POST', request_url, true);
-      request.setRequestHeader('Content-type', 'application/json');
-      request.setRequestHeader('Accept', 'application/json');
-      request.setRequestHeader('Authorization', 'Basic '
-                               +  window.btoa(localStorage['client_id']
-                                              + ":" + localStorage['secret']));
+      this.log("grant: " + request_url);
+      request.open("POST", request_url, true);
+      request.setRequestHeader("Content-type", "application/json");
+      request.setRequestHeader("Accept", "application/json");
+      request.setRequestHeader("Authorization", "Basic "
+                               +  window.btoa(localStorage["client_id"]
+                                              + ":" + localStorage["secret"]));
       request.send(JSON.stringify(params));
     } else {
-      localStorage['state'] = 'disconnected';
+      localStorage["state"] = "disconnected";
     }
   }
 };
 
 app.main = function()
 {
-  this.log("main: endpoint: " + localStorage['endpoint']);
-  this.log("main: " + localStorage['state']);
+  this.log("main: endpoint: " + localStorage["endpoint"]);
+  this.log("main: " + localStorage["state"]);
   this.log("main: " + window.location.hostname);
   // TODO: OAuth update ids here, URLs using file:// will copy from default
-  if (!localStorage['client_id'] || !localStorage['secret'] ) {
+  if (!localStorage["client_id"] || !localStorage["secret"] ) {
     if (!window.location.hostname) {
-      localStorage['client_id'] = "local-token";
-      localStorage['secret'] = "super secret";
+      localStorage["client_id"] = "local-token";
+      localStorage["secret"] = "super secret";
     } else {
       //TODO: add GUI to overide default creds:
-      localStorage['client_id'] = window.location.hostname;
-      localStorage['secret'] = window.location.hostname;
+      localStorage["client_id"] = window.location.hostname;
+      localStorage["secret"] = window.location.hostname;
     }
   }
   try {
-    if (!localStorage['token']) {
-      app.request(localStorage['url']);
+    if (!localStorage["token"]) {
+      app.request(localStorage["url"]);
     } else {
-      app.query(localStorage['endpoint']);
+      app.query(localStorage["endpoint"]);
     }
   } catch(err) {
     this.log(err);
@@ -301,71 +302,71 @@ app.main = function()
 
 window.htmlOnLoad = function() {
 
-  var runButton = document.getElementById('run');
-  runButton.addEventListener('click', function() {
+  var runButton = document.getElementById("run");
+  runButton.addEventListener("click", function() {
     app.main();
   });
 
-  var clearButton = document.getElementById('clear');
-  clearButton.addEventListener('click', function() {
-    document.form.console.value = '';
+  var clearButton = document.getElementById("clear");
+  clearButton.addEventListener("click", function() {
+    document.form.console.value = "";
   });
 
-  var resetButton = document.getElementById('reset');
-  resetButton.addEventListener('click', function() {
-    document.form.console.value = '';
-    document.form.url.value = '';
-    document.form.token.value = '';
+  var resetButton = document.getElementById("reset");
+  resetButton.addEventListener("click", function() {
+    document.form.console.value = "";
+    document.form.url.value = "";
+    document.form.token.value = "";
     localStorage.clear();
-    app.log('token forgotten (need auth again)');
+    app.log("token forgotten (need auth again)");
   });
 
-  var aboutButton = document.getElementById('about');
-  aboutButton.addEventListener('click', function() {
-    window.open('README.md');
+  var aboutButton = document.getElementById("about");
+  aboutButton.addEventListener("click", function() {
+    window.open("README.md");
   });
 
-  var browseButton = document.getElementById('browse');
-  browseButton.addEventListener('click', function() {
-    window.location.href = './00index.html';
+  var browseButton = document.getElementById("browse");
+  browseButton.addEventListener("click", function() {
+    window.location.href = "./00index.html";
   });
 
-  var urlInput = document.getElementById('url');
-  if ( localStorage['url'] && localStorage['url'].length ) {
-    window.form.url.value = localStorage['url']
+  var urlInput = document.getElementById("url");
+  if ( localStorage["url"] && localStorage["url"].length ) {
+    window.form.url.value = localStorage["url"]
   } else if (urlInput.value && urlInput.value.length) {
-    localStorage['url'] = urlInput.value;
+    localStorage["url"] = urlInput.value;
   } else {
     window.form.value="http://gateway.local:8080";
   }
-  urlInput.addEventListener('change', function() {
+  urlInput.addEventListener("change", function() {
     this.value = this.value.replace(/\/$/, "");
-    localStorage['url'] = this.value;
+    localStorage["url"] = this.value;
   });
 
-  var tokenInput = document.getElementById('token');
-  if ( localStorage['token'] && localStorage['token'].length ) {
-    window.form.token.value = localStorage['token']
+  var tokenInput = document.getElementById("token");
+  if ( localStorage["token"] && localStorage["token"].length ) {
+    window.form.token.value = localStorage["token"]
   }
-  tokenInput.addEventListener('change', function() {
+  tokenInput.addEventListener("change", function() {
     this.value = this.value.replace(/\/$/, "");
-    localStorage['token'] = this.value;
+    localStorage["token"] = this.value;
   });
 
-  var endpointInput = document.getElementById('endpoint');
-  if (localStorage['endpoint']) {
-    window.form.endpoint.value = localStorage['endpoint'];
+  var endpointInput = document.getElementById("endpoint");
+  if (localStorage["endpoint"]) {
+    window.form.endpoint.value = localStorage["endpoint"];
   } else if (window.form.endpoint.value) {
-    localStorage['endpoint'] = window.form.endpoint.value;
+    localStorage["endpoint"] = window.form.endpoint.value;
   }
-  endpointInput.addEventListener('change', function() {
+  endpointInput.addEventListener("change", function() {
     console.log(this.value);
     this.value = this.value.replace(/\/$/, "");
-    localStorage['endpoint'] = this.value;
+    localStorage["endpoint"] = this.value;
   });
 
   // add eventListener for tizenhwkey
-  document.addEventListener('tizenhwkey', function(e) {
+  document.addEventListener("tizenhwkey", function(e) {
     if (e.keyName === "back" && tizen && tizen.application) {
       try {
         tizen.application.getCurrentApplication().exit();
@@ -374,12 +375,12 @@ window.htmlOnLoad = function() {
   });
 
   // PWA
-  if ('serviceWorker' in navigator) {
+  if ("serviceWorker" in navigator) {
     try {
-      navigator.serviceWorker.register('service-worker.js').then(function(registration) {
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      navigator.serviceWorker.register("service-worker.js").then(function(registration) {
+        console.log("ServiceWorker registration successful with scope: ", registration.scope);
       }, function(err) {
-        console.log('ServiceWorker registration failed: ', err);
+        console.log("ServiceWorker registration failed: ", err);
       });
     } catch(e) {
       console.log(e.message);

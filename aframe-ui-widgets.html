@@ -6,8 +6,9 @@
      License, v. 2.0. If a copy of the MPL was not distributed with this
      file, You can obtain one at http://mozilla.org/MPL/2.0/
   -->
+<html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mayognaise/aframe-mouse-cursor-component@master/dist/aframe-mouse-cursor-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/TizenTeam/aframe-ui-widgets@sandbox/rzr/review/master/dist/aframe-ui-widgets.min.js" defer></script> 
@@ -15,40 +16,35 @@
     <script src="js/index.js"></script>
     <script src="js/aframe/index.js"></script>
 
-  </head>
-<script>
-AFRAME.registerComponent('app', {
-init: function () {
-  app.viewer.root = this.el;
-  app.viewer.start();
-}
+    <script>
+AFRAME.registerComponent('root', {
+  init: function () {
+    app.viewer.root = this.el;
+    app.viewer.start();
+  }
 });
 
 AFRAME.registerComponent('console', {
-init: function () {
-  app.viewer.log = this.el;
-  app.viewer.verbose(document.location);
-}
+  init: function () {
+    app.viewer.log = this.el;
+    app.viewer.verbose(document.location);
+  }
 });
-</script>
-<body>
-  <a-scene retain-camera stats="false">
-    <a-sky color="#333333"></a-sky>
-
-        <a-entity app
-              />
-
+    </script>
+  </head>
+  <body>
+    <a-scene retain-camera stats="false">
+      <a-sky color="#333333"/>
+      <a-entity root />
       <a-camera mouse-cursor>
         <a-cursor></a-cursor>
       </a-camera>
-      
-          <a-entity id='console' console
-                    text='value: Console'
-                    position='0 -2 0'
-                    rotation='-90 0 0'
-                    scale='4 4 4'
-                    />
-
+      <a-entity id='console' console
+                text='value: Console'
+                position='0 -2 0'
+                rotation='-90 0 0'
+                scale='4 4 4'
+                />
     </a-scene>
   </body>
 </html>

@@ -322,7 +322,7 @@ window.htmlOnLoad = function() {
 
   var browseButton = document.getElementById('browse');
   browseButton.addEventListener('click', function() {
-    window.location.href = 'aframe.html';
+    window.location.href = './#TODO:aframe.html';
   });
 
   var urlInput = document.getElementById('url');

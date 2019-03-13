@@ -24,13 +24,15 @@ viewer.createPropertyElement = function (model, name)
   let property = model.properties[name];
   let type = property.type;
   let el = null;
+  console.log(model);
   console.log(property);
+  var endpoint = model.links[0].href + '/' + name;
+  
   let view = document.createElement( "a-entity" );
   view.setAttribute("text", "value", `\n${model.name}/${property.title} (${property.type})`);
   view.setAttribute("text", "color", (property.readOnly) ? "#FFA0A0" : '#A0FFA0');
 
   var id = `widget-${viewer.count++}`;
-  console.log(id);
   if (type === 'boolean') {
     el = document.createElement( "a-entity" );
     el.setAttribute("ui-toggle", "value", 0);
@@ -49,10 +51,9 @@ viewer.createPropertyElement = function (model, name)
   el.setAttribute("id", id);
   el.setAttribute("position", "-1 0 0");
   el.addEventListener('change', function(e) {
-    console.log('change:  ~~~ ');
     if (e.detail) {
-      var payload = { on: e.detail.value !== 0 };
-      app.put(property.links[0].href, payload, function(res, data) {
+      var payload = { on: (e.detail.value !== 0) };
+      app.put(endpoint, payload, function(res, data) {
         if (!res) {
           console.log(data);
         } });
@@ -72,12 +73,10 @@ viewer.updateView = function(model, name, view)
   var property = model.properties[name];
   console.log(property);
   var endpoint = property.links[0].href;
-  var url = localStorage['url'] + endpoint;
-  console.log(url);
   let type = property.type;
   let el = view.children[0];
 
-  app.get(url, function(err, data) {
+  app.get(endpoint, function(err, data) {
     if (!err) {
       let text = view.getAttribute('text', 'value').value;
       text = `\n${text}\n${data})`;
@@ -164,7 +163,8 @@ viewer.query = function(endpoint)
       if (model.type === "thing") {
         console.log(model);
         endpoint = model.href + '/properties';
-        //model.local.view = viewer.thingQuery(url, token); //TODO
+        //model.local.view =
+        //viewer.thingQuery(endpoint);
       } else {
         self.appendThing(model);
       }

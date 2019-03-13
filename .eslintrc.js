@@ -128,7 +128,7 @@ module.exports = {
     'no-shadow-restricted-names': 'error',
     'no-tabs': 'error',
     'no-trailing-spaces': 'error',
-    'no-undefined': 'error',
+    'no-undef': 'off',
     'no-unmodified-loop-condition': 'error',
     'no-unused-vars': [
       'error',

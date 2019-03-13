@@ -19,7 +19,7 @@ viewer.position = {x: -viewer.edge.x,
 
 viewer.verbose = !console.log || function(text) {
   console.log(text);
-  if (this.log) {
+  if (this.log && app.debug) {
     var value = this.log.getAttribute('text', value).value || '';
     value = `${value}\n${text}`;
     this.log.setAttribute('text', 'value', value);

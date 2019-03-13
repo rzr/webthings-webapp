@@ -64,9 +64,10 @@ app.browse = function(url, callback)
       window.authCount = 98;
     }
   });
+  this.log('Opening: ' + url);
   window.authWin = window.open(url);
   if (!window.authWin) {
-    throw "Cant open window: " + url;
+    throw "Can't open window: " + url;
   }
   window.interval = setInterval(function () {
     self.log('loop: ' + window.authCount);
@@ -116,8 +117,9 @@ app.browse = function(url, callback)
   }, delay);
 };
 
-app.get = function(url, callback)
+app.get = function(endpoint, callback)
 {
+  var url = localStorage['url'] + endpoint;
   this.log('url: ' + url); //TODO
   var token = localStorage['token'];
   var request = new XMLHttpRequest();
@@ -151,18 +153,16 @@ app.put = function(endpoint, payload, callback)
   request.send(payload);
 }
 
-app.query = function(url, token)
+app.query = function(endpoint, token)
 {
   var self = this;
-  console.log('query: ' + url);
-  if (!url) {
-    url = localStorage['url'] + localStorage['endpoint'];
-  }
+  console.log('query: ' + endpoint);
+
   if (!token) {
     token = localStorage['token'];
   }
   console.log('query: ' + url);
-  this.get(url, function(err, data) {
+  this.get(endpoint, function(err, data) {
     if (err || !data) throw err;
     var items = data && JSON.parse(data) || [];
     for (var index=0; index < items.length; index++) {
@@ -172,15 +172,17 @@ app.query = function(url, token)
   });
 };
 
-app.request = function(base_url)
+app.request = function(endpoint)
 {
   var self = this;
-  if (!base_url) throw "URL needed";
-  this.log("request: " + base_url);
-  if (localStorage['token'] && localStorage['token'].length) {
-    return self.query(base_url + localStorage['endpoint']);
+  this.log("request: " + endpoint);
+  if (!endpoint) {
+    endpoint = localStorage['endpoint'];
   }
-  var url = base_url;
+  if (localStorage['token'] && localStorage['token'].length) {
+    return self.query(endpoint);
+  }
+  var url = localStorage['url'];
   url += '/oauth/authorize' + '?';
   url += '&client_id=' + localStorage['client_id'];
   url += '&scope=' + '/things:readwrite';
@@ -190,8 +192,7 @@ app.request = function(base_url)
       if (!err) {
         if (data) {
           window.form.token.value = data;
-
-          return self.query();
+          return self.query(endpoint);
         }
       }
       self.log('error: browsing: ' + err);
@@ -238,7 +239,7 @@ app.request = function(base_url)
       }, 500);
     } else if (code && isCallback) {
       localStorage['state'] = 'token';
-      var request_url = base_url + "/oauth/token" ;
+      var request_url = localStorage['url'] + "/oauth/token" ;
       var params = {
         code: code,
         grant_type: 'authorization_code',
@@ -254,7 +255,7 @@ app.request = function(base_url)
             var loc = window.location.href.substring(0, pos);
             window.history.replaceState({}, document.title, loc);
           }
-          self.query();
+          self.query(endpoint);
         }
       }
       this.log('grant: ' + request_url);
@@ -291,7 +292,7 @@ app.main = function()
     if (!localStorage['token']) {
       app.request(localStorage['url']);
     } else {
-      app.query(localStorage['url'] + localStorage['endpoint'], localStorage['token']);
+      app.query(localStorage['endpoint']);
     }
   } catch(err) {
     this.log(err);

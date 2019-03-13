@@ -245,7 +245,7 @@
         return setTimeout(function() {
           const redirect_url = `\
 ${localStorage.url}\
-${endpoint}\
+${authorize_endpoint}\
 &redirect_uri=${encodeURIComponent(document.location)}\
 `;
           localStorage.state = 'callback';
@@ -306,7 +306,7 @@ ${endpoint}\
     }
     try {
       if (!localStorage.token) {
-        app.request('/');
+        app.request('/'); // TODO
       } else {
         app.query(localStorage.endpoint);
       }

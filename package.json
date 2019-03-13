@@ -1,0 +1,14 @@
+{
+  "name": "webthings-webapp",
+  "version": "0.0.0",
+  "description": "Standalone application to browse \"Webthings\" connected to \"Mozilla IoT Gateway\"",
+  "scripts": {
+    "test": "eslint lib/*.js lib/*/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samsunginternet/webthings-webapp"
+  },
+  "author": "Philippe Coval <p.coval@samsung.com> (https://social.samsunginter.net/@rzr)",
+  "license": "MPL-2.0"
+}

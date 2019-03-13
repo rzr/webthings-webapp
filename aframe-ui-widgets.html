@@ -6,7 +6,6 @@
      License, v. 2.0. If a copy of the MPL was not distributed with this
      file, You can obtain one at http://mozilla.org/MPL/2.0/
   -->
-<html lang="en">
   <head>
     <meta charset="utf-8" />
     <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
@@ -33,18 +32,20 @@ AFRAME.registerComponent('console', {
     </script>
   </head>
   <body>
-    <a-scene retain-camera stats="false">
-      <a-sky color="#333333"/>
+    <a-scene retain-camera debug stats="false">
+    <a-sky color="#333333"></a-sky>
+    <!-- Hands -->
+
       <a-entity root />
-      <a-camera mouse-cursor>
+      <a-camera mouse-cursor  wasd-controls>
         <a-cursor></a-cursor>
       </a-camera>
-      <a-entity id='console' console
-                text='value: Console'
-                position='0 -2 0'
-                rotation='-90 0 0'
-                scale='4 4 4'
-                />
+      <a-text id="console" console
+              value='console:'
+              position="0 -2 0"
+              rotation="-90 0 0"
+              color="#808080"
+              />
     </a-scene>
   </body>
 </html>

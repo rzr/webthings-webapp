@@ -216,14 +216,16 @@
 
     if (url) { // TODO: refactor
       try {
-        this.log(`TODO: location: ${window.location}`);
-        this.log(`TODO: URL.document.URL: ${document.URL}`);
-        this.log(`TODO: URL.window.URL: ${window.URL}`);
-        this.log(`TODO: check: ${url.search}`);
-        url.search.replace(/^%3F/, '?');
-        this.log(`TODO: workaround: ${url.search}`);
+        const replace = url.search.replace(/^%3F/, '?');
+        if (replace != url.search) {
+          this.log(`TODO: location: ${window.location}`);
+          this.log(`TODO: document.URL: ${document.URL}`);
+          this.log(`TODO: check: search: ${url.search}`);
+          this.log(`TODO: check: replace: ${replace}`);
+        }
+        // this.log(`TODO: workaround: ${url.search}`);
         const searchParams = new URLSearchParams(url.search);
-        this.log(`TODO: searchParms: ${searchParams}`);
+        // this.log(`TODO: searchParms: ${searchParams}`);
         code = searchParams.get('code');
         this.log(`TODO: code: ${code}`);
       } catch (err) {

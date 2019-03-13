@@ -306,7 +306,7 @@ ${endpoint}\
     }
     try {
       if (!localStorage.token) {
-        app.request(localStorage.url);
+        app.request('/');
       } else {
         app.query(localStorage.endpoint);
       }

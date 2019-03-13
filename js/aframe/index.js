@@ -18,7 +18,13 @@ viewer.position = {x: -viewer.edge.x,
                    z: -2};
 
 
-viewer.verbose = console.log;
+viewer.verbose = !console.log || function(text) {
+  console.log(text);
+  var value = app.el.getAttribute('text', value).value;
+  value = `${value}\n${text}`;
+  viewer.el.setAttribute('text', 'value', value);
+};
+
 
 viewer.createPropertyElement = function(model, name) {
   const self = this;

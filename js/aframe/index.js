@@ -9,7 +9,9 @@
 
 var viewer = {};
 viewer.count = 0;
-viewer.position = { x: -2 , y:-2 , z:0 };
+viewer.position = { x: -2,
+y: -2,
+z: 0 };
 
 viewer.createPropertyElement = function (model, name)
 {
@@ -44,11 +46,11 @@ viewer.createPropertyElement = function (model, name)
   el.addEventListener('change', function(e) {
     console.log('change:  ~~~ ');
     if (e.detail) {
-      var payload = { on: (e.detail.value === 0 ) ? false : true};
+      var payload = { on: e.detail.value !== 0 };
       app.put(property.links[0].href, payload, function(res, data) {
 	if (!res) {
 	  console.log(data);
-	}});
+	} });
     } else {
       self.updateView(model, name, view);
     }
@@ -68,8 +70,16 @@ viewer.createPropertyElement = function (model, name)
 	console.log(el.getAttribute("value"));
 	console.log(el.getAttribute("ui-toggle"));
 	el.setAttribute('ui-toggle', "value", 0);
-	el.setAttribute('scale', [2,2,2]);
-	el.setAttribute('rotation', [0, 90, 0 ]);
+	el.setAttribute('scale', [
+2,
+2,
+2
+]);
+	el.setAttribute('rotation', [
+0,
+90,
+0
+]);
 	console.log(el.getAttribute("ui-toggle"));
 	el.setAttribute('color', "#00FF00");
 	//el.emit('update', {value: 0});
@@ -83,14 +93,19 @@ viewer.createPropertyElement = function (model, name)
 	var el = document.querySelector(`#${id}`);
 	//console.log(el);
 	//console.log(el.getAttribute("color"));
-	el.setAttribute('scale', [ 1,2,3] );
+	el.setAttribute('scale', [
+1,
+2,
+3
+] );
 	el.setAttribute('color', "#00FF00");
 	el.emit('change');
 	//el.emit('change', {color: "#00FF00"});
 	console.log('emit}');
     }, 4000);
   }
-  return view;
+  
+return view;
 }
 
 
@@ -123,7 +138,7 @@ viewer.updateView = function(model, name, view)
 	  console.log(el.getAttribute('ui-toggle'));
 	  el.setAttribute('ui-toggle', "value", value);
 	  console.log(el.getAttribute('ui-toggle'));
-	  el.emit('change', {value: value});
+	  el.emit('change', { value: value });
 	} catch(err) {
 	  console.log('TODO:' + err);
 	}
@@ -152,7 +167,7 @@ viewer.appendThing = function (model)
     }
     el.setAttribute("position", viewer.position.x + ' ' + viewer.position.y+ ' ' + viewer.position.z );
     viewer.el.appendChild(el);
-    viewer.position.y +=.4;
+    viewer.position.y +=0.4;
   }
   if (viewer.position.y > 2){
     viewer.position.x += 2;
@@ -183,7 +198,7 @@ viewer.thingQuery = function(url, token)
       let model = object[items[index]];
       model.local = {};
       console.log(model);
-    };
+    }
   });
 }
 
@@ -207,7 +222,7 @@ viewer.query = function(url, token)
       } else {
 	model.local.view = self.appendThing(model);
       } 
-    };
+    }
   });
 }
 

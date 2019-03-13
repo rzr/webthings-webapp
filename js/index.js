@@ -48,7 +48,7 @@
 
     return token;
   };
-   // TODO: endpoint
+  // TODO: endpoint
   app.browse = function(endpoint, callback) {
     const self = this;
     if (localStorage.token) {
@@ -58,9 +58,9 @@
       throw 'Error: ';
     }
     if (!endpoint) {
-      endpoint = localStorage['endpoint'];
+      endpoint = localStorage.endpoint;
     }
-    let url = localStorage['url'] + endpoint;
+    let url = localStorage.url + endpoint;
     this.log(`browse: ${url}`);
     const delay = 50;
     window.authCount = 0;
@@ -190,7 +190,7 @@
     if (localStorage.token && localStorage.token.length) {
       return self.query(endpoint);
     }
-    let authorize_endpoint= `\
+    const authorize_endpoint = `\
 /oauth/authorize\
 ?\
 &client_id=${localStorage.client_id}\
@@ -243,7 +243,7 @@
 
       if (!code && !isCallback) {
         return setTimeout(function() {
-          var redirect_url = `\
+          const redirect_url = `\
 ${localStorage.url}\
 ${endpoint}\
 &redirect_uri=${encodeURIComponent(document.location)}\

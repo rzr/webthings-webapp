@@ -326,7 +326,7 @@ window.htmlOnLoad = function() {
 
   var browseButton = document.getElementById('browse');
   browseButton.addEventListener('click', function() {
-    window.location.href = './#TODO:aframe.html';
+    window.location.href = './00index.html';
   });
 
   var urlInput = document.getElementById('url');

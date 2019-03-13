@@ -391,7 +391,7 @@ ${endpoint}\
     });
 
     // PWA
-    if ('serviceWorker' in navigator) {
+    /*    if ('serviceWorker' in navigator) {
       try {
         navigator.serviceWorker.register('service-worker.js').then(
           function(registration) {
@@ -404,7 +404,7 @@ ${endpoint}\
         console.log(e.message);
       }
     }
-
+*/
     // Autoconnect
     // TODO add settings page to disable (for debuging)
     app.main();

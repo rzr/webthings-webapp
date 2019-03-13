@@ -21,7 +21,8 @@
     console.log(text);
     if (document.form && document.form.console) {
       document.form.console.value += text;
-      document.form.console.value.scrollTop = document.form.console.value.scrollHeight;
+      document.form.console.value.scrollTop =
+        document.form.console.value.scrollHeight;
     }
   };
 
@@ -35,7 +36,9 @@
     // TODO: document.getElementById('token').textContent;
     try {
       const xpath = '/html/body/section/div[2]/code/text()';
-      const iterator = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null);
+      const iterator = document.evaluate(xpath,
+                                         document, null,
+                                         XPathResult.ANY_TYPE, null);
       const thisNode = iterator.iterateNext();
       token = thisNode.textContent;
     } catch (err) {
@@ -90,8 +93,8 @@
       try {
         self.log(`accessing a cross-origin frame: ${window.authWin.location}`);
         url = (window.authWin && window.authWin.location &&
-             window.authWin.location.href) ?
-          window.authWin.location.href : undefined;
+               window.authWin.location.href);
+
         self.log(`auth: url: ${url}`);
         if (url && (url.indexOf('code=') >= 0)) {
           localStorage.token = self.handleDocument(window.authWin.document);
@@ -178,11 +181,12 @@
     if (localStorage.token && localStorage.token.length) {
       return self.query(endpoint);
     }
-    let url = localStorage.url;
-    url += '/oauth/authorize' + '?';
-    url += `&client_id=${localStorage.client_id}`;
-    url += '&scope=' + '/things:readwrite';
-    url += '&response_type=code';
+    let url = `${localStorage.url}\
+/oauth/authorize\
+?\
+&client_id=${localStorage.client_id}\
+&scope=' + '/things:readwrite\
+&response_type=code`;
     if (!window.location.hostname) {
       return this.browse(url, function(err, data) {
         if (!err) {
@@ -364,18 +368,22 @@
       if (e.keyName === 'back' && tizen && tizen.application) {
         try {
           tizen.application.getCurrentApplication().exit();
-        } catch (ignore) {}
+        } catch (e) {
+          this.log(`ignore: ${e}`);
+        }
       }
     });
 
     // PWA
     if ('serviceWorker' in navigator) {
       try {
-        navigator.serviceWorker.register('service-worker.js').then(function(registration) {
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, function(err) {
-          console.log('ServiceWorker registration failed: ', err);
-        });
+        navigator.serviceWorker.register('service-worker.js').then(
+          function(registration) {
+            console.log('ServiceWorker registration successful with scope: ',
+                        registration.scope);
+          }, function(err) {
+            console.log('ServiceWorker registration failed: ', err);
+          });
       } catch (e) {
         console.log(e.message);
       }

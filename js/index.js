@@ -8,7 +8,8 @@
  */
 
 (function() {
-// 'use strict';
+  // 'use strict';
+  app.debug = true; // TODO: set true
   app.isLoading = true;
   app.datacontent = document.querySelector('.textarea');
   app.localStorage = localStorage;

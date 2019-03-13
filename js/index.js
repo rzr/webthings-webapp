@@ -185,7 +185,7 @@
 /oauth/authorize\
 ?\
 &client_id=${localStorage.client_id}\
-&scope=' + '/things:readwrite\
+&scope=/things:readwrite\
 &response_type=code`;
     if (!window.location.hostname) {
       return this.browse(url, function(err, data) {

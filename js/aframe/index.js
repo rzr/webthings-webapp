@@ -17,6 +17,8 @@ viewer.position = {x: -viewer.edge.x,
                    y: -viewer.edge.y,
                    z: -2};
 
+viewer.rotation = [ 0, 0, 0];
+
 viewer.verbose = !console.log || function(text) {
   console.log(text);
   if (this.log && app.debug) {
@@ -34,30 +36,37 @@ viewer.createPropertyElement = function(model, name) {
   let el = null;
   const endpoint = `${model.links[0].href}/${name}`;
 
-  const view = document.createElement('a-entity');
-  view.setAttribute('text', 'value',
-                    `\n${model.name}/${property.title} (${property.type})`);
-  view.setAttribute('text', 'color',
+  const view = document.createElement('a-text');
+  const suffix = (property.title) ? `:\n(${property.title})` : '';
+  view.setAttribute('value',
+                    `\n${model.name}${suffix}`);
+  view.setAttribute('color',
                     (property.readOnly) ? '#FFA0A0' : '#A0FFA0');
-
+  view.setAttribute('width', 1);
+  view.setAttribute('align', 'center');
   const id = `${this.count++}`;
-  if (type === 'boolean') {
-    el = document.createElement('a-entity');
-    el.setAttribute('ui-toggle', 'value', 0);
-    el.setAttribute('rotation', '90 0 0');
-  } else if ((type === 'number') || (type === 'integer')) {
-    el = document.createElement('a-cylinder');
-    el.setAttribute('color', '#A0A0FF');
-    const number = 1; // TODO
-    el.setAttribute('height', '0.1' * number);
-    el.setAttribute('radius', '0.1');
-  } else {
-    el = document.createElement('a-sphere');
-    el.setAttribute('color', '#FF0000');
-    el.setAttribute('radius', '0.1');
+  switch (type) {
+
+    case 'boolean':
+      el = document.createElement('a-entity');
+      el.setAttribute('ui-toggle', 'value', 0);
+      el.setAttribute('rotation', '90 0 0');
+      break;
+    case 'number':
+    case 'integer':
+      el = document.createElement('a-cylinder');
+      el.setAttribute('color', '#A0A0FF');
+      const number = 1; // TODO
+      el.setAttribute('height', '0.1' * number);
+      el.setAttribute('radius', '0.1');
+      break;
+    default:
+      el = document.createElement('a-sphere');
+      el.setAttribute('color', '#FF0000');
+      el.setAttribute('radius', '0.1');
   }
+  el.setAttribute('position', '0 0.2 0');
   el.setAttribute('id', `widget-${id}`);
-  el.setAttribute('position', '-1 0 0');
   el.addEventListener('change', function(e) {
     if (e.detail) {
       const payload = {};
@@ -119,7 +128,32 @@ viewer.appendProperties = function(model) {
     } catch (err) {
       console.error(`ignore: ${err}`);
     }
-    el.setAttribute('position', `${this.position.x} ${this.position.y} ${this.position.z}`);
+    // el.setAttribute('position', `${this.position.x} ${this.position.y} ${this.position.z}`);
+    // this.position = [ 0, 1.6, -20 ];
+
+    // THREE.Vector3.apply(el.object3D.rotation, this.rotation);
+
+    el.object3D.rotateY(this.rotation[1]);
+    el.object3D.rotateX(this.rotation[0]);
+    el.object3D.translateY(1.8);
+    const step = 9;
+    el.object3D.translateZ(-2);
+
+    // THREE.Object3d.translateZ.pply(el.object3D.position, this.position);
+    this.rotation[1] += (2 * Math.PI / step) / Math.cos(this.rotation[0]);
+
+    if (this.rotation[1] >= 2 * Math.PI) {
+      this.rotation[1] = 0;
+      this.rotation[0] += 2 * Math.PI / 2 / 2 / step; // TODO : bottom
+    }
+    // alert(this.rotation[1]);
+
+    if (Math.abs(this.rotation[0]) >= Math.ceil(2 * Math.PI / 2 / 2 / step) * step) {
+      this.rotation[0] = 0;
+      alert('max');
+    }
+
+
     this.root.appendChild(el);
     this.position.y += 0.4;
   }

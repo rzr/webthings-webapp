@@ -329,18 +329,22 @@ ${authorize_endpoint}\
     // hack to pass token from CLI
     let hash = window.location.hash;
     if (hash) {
-      hash = hash.substring(1, hash.length);
-      const url = `http://0.0.0.0/${hash}`;
-      const params = new URL(url).searchParams;
-      for (const entry of params.entries()) {
-        if (entry[0] && entry[1]) {
-          localStorage[entry[0]] = entry[1];
+      try {
+        hash = hash.substring(1, hash.length);
+        const url = `http://0.0.0.0/${hash}`;
+        const params = new URL(url).searchParams;
+        for (const entry of params.entries()) {
+          if (entry[0] && entry[1]) {
+            localStorage[entry[0]] = entry[1];
+          }
         }
+      } catch (e) {
+        console.log(e);
       }
-      const loc = `${window.location.protocol
-      }//${
-        window.location.host
-      }${window.location.pathname}`;
+      const loc = `${window.location.protocol}\
+//\
+${window.location.host}\
+${window.location.pathname}`;
       if (!app.debug || confirm(`Relocate to ${loc}`)) {
         window.history.replaceState({}, document.title, loc);
       }

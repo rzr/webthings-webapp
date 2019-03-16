@@ -20,10 +20,13 @@
     }
     const text = `log: ${arg}\n`;
     console.log(text);
-    if (document.form && document.form.console) {
-      document.form.console.value += text;
-      document.form.console.value.scrollTop =
-        document.form.console.value.scrollHeight;
+
+    const el = document.getElementById('console');
+    if (el) {
+      let value = el.getAttribute('value');
+      value += text;
+      value = el.setAttribute('value', value);
+      value = el.setAttribute('scrollTop', el.getAttribute('scrollHeight')); // TODO check
     }
   };
 
@@ -201,8 +204,7 @@
       return this.browse(authorize_endpoint, function(err, data) {
         if (!err) {
           if (data) {
-            window.form.token.value = data;
-
+            window.getElementById('token').setAttribute('value', data);
             return self.query(endpoint);
           }
         }
@@ -269,7 +271,7 @@ ${authorize_endpoint}\
         request.onreadystatechange = function() {
           if (request.readyState == 4 && request.status == 200) {
             localStorage.token = JSON.parse(request.responseText).access_token;
-            window.form.token.value = localStorage.token; // TODO
+            window.getElementById('token').setAttribute('value', localStorage.token); // TODO
             const pos = window.location.href.indexOf('?');
             if (pos) {
               const loc = window.location.href.substring(0, pos);
@@ -347,15 +349,16 @@ ${authorize_endpoint}\
     const clearButton = document.getElementById('clear');
     if (clearButton) {
       clearButton.addEventListener('click', function() {
-        document.form.console.value = '';
+        document.getElementById('console').setAttribute('value', '');
       });
     }
 
     const resetButton = document.getElementById('reset');
     resetButton.addEventListener('click', function() {
-      document.form.console.value = '';
-      document.form.url.value = '';
-      document.form.token.value = '';
+      document.getElementById('console').setAttribute('value', '');
+      document.getElementById('url').setAttribute('value', '');
+      document.getElementById('token').setAttribute('value', '');
+      // document.getElementById('endpoint').setAttribute('value', '');
       localStorage.clear();
       app.log('token forgotten (need auth again)');
     });
@@ -377,7 +380,7 @@ ${authorize_endpoint}\
     } else if (urlInput.value && urlInput.value.length) {
       localStorage.url = urlInput.value;
     } else {
-      window.form.value = 'http://gateway.local:8080';
+      urlInput.setAttribute('value', 'http://gateway.local:8080');
     }
     urlInput.addEventListener('change', function() {
       this.value = this.value.replace(/\/$/, '');
@@ -396,8 +399,8 @@ ${authorize_endpoint}\
     const endpointInput = document.getElementById('endpoint');
     if (localStorage.endpoint) {
       endpoint.setAttribute('value', localStorage.endpoint);
-    } else if (window.form.endpoint.value) {
-      localStorage.endpoint = window.form.endpoint.value;
+    } else if (endpointInput.getAttribute('value')) {
+      localStorage.endpoint = endpointInput.getAttribute('value');
     }
     endpointInput.addEventListener('change', function() {
       console.log(this.value);

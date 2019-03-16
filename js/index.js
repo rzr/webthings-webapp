@@ -221,16 +221,7 @@
 
     if (url) { // TODO: refactor
       try {
-        const replace = url.search.replace(/^%3F/, '?');
-        if (replace != url.search) {
-          this.log(`TODO: location: ${window.location}`);
-          this.log(`TODO: document.URL: ${document.URL}`);
-          this.log(`TODO: check: search: ${url.search}`);
-          this.log(`TODO: check: replace: ${replace}`);
-        }
-        // this.log(`TODO: workaround: ${url.search}`);
         const searchParams = new URLSearchParams(url.search);
-        // this.log(`TODO: searchParms: ${searchParams}`);
         code = searchParams.get('code');
         this.log(`TODO: code: ${code}`);
       } catch (err) {
@@ -239,6 +230,14 @@
       }
       if (!code && url.search) {
         this.log(`TODO: workaround: search: ${url.search}`);
+        this.log(`TODO: searchParms: ${searchParams}`);
+        const replace = url.search.replace(/^%3F/, '?');
+        if (replace != url.search) {
+          this.log(`TODO: workaround: replace: ${replace}`);
+          this.log(`TODO: check: search: ${url.search}`);
+          this.log(`TODO: document.URL: ${document.URL}`);
+        }
+
         try {
           code = url.search.substring(
             url.search.indexOf('code=') + 'code='.length,

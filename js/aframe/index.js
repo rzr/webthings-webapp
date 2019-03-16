@@ -23,96 +23,55 @@ viewer.verbose = !console.log || function(text) {
   }
 };
 
-viewer.poll = function(property, callback, delay) {
+// TODO relocate
+viewer.poll = function(thing, callback) {
   const self = this;
-  const url = localStorage.url + property.links[0].href;
+  const url = `${localStorage.url + thing.href}/properties`;
+  self.verbose(`fetch: ${url}`);
+  fetch(url,
+        {headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.token}`,
+        }}
+  )
+    .then(function(response) {
+      self.verbose(`recieved:`);
+      return response.json();
+    })
+    .then(function(json) {
+      self.verbose(`parsed: ${json}`);
+      self.verbose(json);
+      if (callback) {
+        callback((json === null), json);
+      }
+    });
+};
+
+// TODO relocate
+viewer.startPoll = function(thing, callback, delay) {
+  const self = this;
   if (!delay) {
     delay = 1000;
   }
-  this.verbose(`loop: ${delay}`);
   interval = setInterval(function() {
-    self.verbose(`fetch: ${url}`);
     if (app.pause) {
       self.verbose(`stopping: ${app.pause}`);
       inverval = clearInterval(interval);
     }
-    fetch(url,
-          {headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.token}`,
-          }}
-    )
-      .then(function(response) {
-        console.log(`recieved: ${response}`);
-        return response.json();
-      })
-      .then(function(json) {
-        self.verbose(`parsed: ${json}`);
-        if (callback) {
-          callback(null, json);
-        }
-      });
+    self.poll(thing, callback);
   }, delay);
 };
 
 
-viewer.listen = function(property, callback) {
-  if (property) {
-    return;
-  } // TODO
-  const self = this;
-  const useWebsockets = true;
-  let wsUrl = localStorage.url.replace('http', 'ws');
-  wsUrl += '/things/virtual-things-0'; // TODO
-  wsUrl += `?jwt=${localStorage.token}`;
-
-  let ws = null;
-  console.log(wsUrl);
-  if (useWebsockets) {
-    ws = new WebSocket(wsUrl);
-    ws.onclose = function(evt) {
-      self.verbose(wsUrl);
-      self.verbose(evt);
-      // CLOSE_ABNORMAL
-      if (evt.code === 1006) {
-        self.poll(property, callback);
-      }
-    };
-    ws.onmessage = function(evt) {
-      self.verbose(`onmessage:${evt}`);
-      self.verbose(evt.data);
-
-      if (app.pause) {
-        ws.close();
-      }
-      if (callback) {
-        let data = null;
-        try {
-          data = JSON.parse(evt.data).data;
-          console.log(data);
-        } catch (e) {
-          self.verbose(`error: ${e}`);
-        }
-        callback((data == null), data);
-      }
-    };
-  } else {
-    if (ws) {
-      ws.close();
-    }
-    self.poll(property, callback);
-  }
-};
-
-
-viewer.thingListen = function(thing, callback) {
+// TODO relocate
+viewer.listenThing = function(thing, callback) {
   const self = this;
   const useWebsockets = true;
   let wsUrl = thing.links[thing.links.length - 1].href;
   wsUrl += `?jwt=${localStorage.token}`;
   let ws = null;
-  console.log(wsUrl);
+  // console.log(wsUrl);
   if (useWebsockets) {
     ws = new WebSocket(wsUrl);
     ws.onclose = function(evt) {
@@ -120,13 +79,10 @@ viewer.thingListen = function(thing, callback) {
       self.verbose(evt);
       // CLOSE_ABNORMAL
       if (evt.code === 1006) {
-        // self.poll(property, callback);
+        self.startPoll(thing, callback);
       }
     };
     ws.onmessage = function(evt) {
-      self.verbose(`onmessage:${evt}`);
-      self.verbose(evt.data);
-
       if (app.pause) {
         ws.close();
       }
@@ -134,7 +90,6 @@ viewer.thingListen = function(thing, callback) {
         let data = null;
         try {
           data = JSON.parse(evt.data).data;
-          console.log(data);
         } catch (e) {
           self.verbose(`error: ${e}`);
         }
@@ -142,7 +97,7 @@ viewer.thingListen = function(thing, callback) {
       }
     };
   } else {
-    // self.poll(property, callback); //TODO
+    self.startPoll(thing, callback);
   }
 };
 
@@ -163,47 +118,36 @@ viewer.createPropertyElement = function(model, name) {
   view.setAttribute('width', 1);
   view.setAttribute('align', 'center');
   const id = `${this.count++}`;
-
+  self.verbose(`createPropertyElement: ${type}/${semType}`);
   switch (type) {
     case 'boolean':
       el = document.createElement('a-entity');
-      el.setAttribute('ui-toggle', 'value', 0);
       el.setAttribute('rotation', '90 0 0');
+      el.setAttribute('ui-toggle', 'value', 0);
       break;
     case 'number':
     case 'integer':
-    // const number = 1; // TODO
-      el = document.createElement('a-cylinder');
-      el.setAttribute('color', '#A0A0FF');
-      el.setAttribute('height', '0.1' * 1);
-      el.setAttribute('radius', '0.1');
+      el = document.createElement('a-entity');
+      el.setAttribute('rotation', '90 0 0');
+      el.setAttribute('ui-slider', 'value', 0);
+      el.setAttribute('ui-slider', 'min', 0);
+      el.setAttribute('ui-slider', 'max', 100); // TODO
       break;
     case 'string':
-      if (semType === 'ColorProperty') {
+      if (semType === 'ColorProperty' || name === 'color') { // TODO
         el = document.createElement('a-sphere');
         el.setAttribute('color', '#FF0000');
         el.setAttribute('radius', '0.1');
-        self.listen(property, function(err, data) {
-          console.log(`callback: ${semType}=${data}`);
-          self.verbose(data);
-          if (err || !data) {
-            self.verbose(`error: ${err}`);
-            throw (err);
-          }
-
-          for (const key in data) {
-            self.verbose(`key: ${key}`);
-            el.setAttribute(key, data[key]);
-          } // TODO mapping
-        });
       } else {
+        self.verbose(model);
         el = document.createElement('a-box');
         el.setAttribute('color', '#00FF00');
         el.setAttribute('scale', '.1 .1 .1');
       }
       break;
     default:
-      el = document.createElement('a-sphere');
+      self.verbose(`TODO: ${type}`);
+      el = document.createElement('a-octahedron');
       el.setAttribute('color', '#FF0000');
       el.setAttribute('radius', '0.1');
   }
@@ -219,7 +163,7 @@ viewer.createPropertyElement = function(model, name) {
         }
       });
     } else {
-      self.updateView(model, name, view);
+      self.startUpdateProperty(model, name, view);
     }
   });
   view.setAttribute('id', `view-${id}`);
@@ -228,35 +172,79 @@ viewer.createPropertyElement = function(model, name) {
   return view;
 };
 
-
-viewer.updateView = function(model, name, view) {
+// maybe removed
+viewer.startUpdateProperty = function(model, name, view) {
+  if (model) {
+    return;
+  } // TODO
   const property = model.properties[name];
   const endpoint = property.links[0].href;
   const type = property.type;
   const el = view.children[0];
-
   app.get(endpoint, function(err, data) {
     if (!err) {
       let text = view.getAttribute('text', 'value').value;
       text = `\n${text}\n${data})`;
       view.setAttribute('text', 'value', text);
+      let value = JSON.parse(data)[name];
 
-      if (type === 'boolean') {
-        try {
-          let value = JSON.parse(data)[name];
-          value = (value) ? 1 : 0;
-          el.setAttribute('ui-toggle', 'value', value);
-          el.emit('change', {value: value});
-        } catch (e) {
-          console.error(`error: ${e}`);
-        }
-      } else if (type === 'string') {
-        let t = view.getAttribute('text', 'value').value;
-        t = `\n${t}\n${data})`;
-        view.setAttribute('text', 'value', t);
+      switch (type) {
+        case 'boolean':
+          try {
+            value = (value) ? 1 : 0;
+            el.setAttribute('ui-toggle', 'value', value);
+            // el.emit('change', {value: value});
+          } catch (e) {
+            console.error(`error: ${e}`);
+          }
+          break;
+
+        case 'number':
+        case 'integer':
+          el.setAttribute('ui-slider', 'value', value);
+          break;
+
+
+        case 'string':
+          view.setAttribute('text', 'value',
+                            `${view.getAttribute('text', 'value').value
+                            }\n${t}\n${data})`);
+          break;
+        default:
+          self.verbose('TODO:');
       }
     }
   });
+};
+
+
+viewer.updateThingView = function(err, data, model) {
+  const self = this;
+  if (err) {
+    throw err;
+  }
+  self.verbose('updateThingView');
+  self.verbose(model);
+  for (const name in data) {
+    self.verbose('updateThingView/prop/${name}');
+    const type = model.properties[name].type;
+    const el = model.local[name].view.children[0];
+    switch (type) { // TODO: mapping design pattern
+      case 'boolean':
+        el.setAttribute('ui-toggle', 'value', data[name] ? 1 : 0);
+        break;
+      case 'number':
+      case 'integer':
+        // TODO update in widget
+        el.setAttribute('ui-slider', 'value', data[name]);
+        break;
+      case 'string':
+        el.setAttribute(name, data[name]); // TODO
+        break;
+      default:
+        self.verbose(`TODO: callback: ${name} : ${type}`);
+    }
+  }
 };
 
 
@@ -264,8 +252,8 @@ viewer.appendThing = function(model) {
   const self = this;
   const view = null;
   let propertyName = null;
-  this.verbose(`appendThing: ${model.type}`);
-  this.verbose(model);
+  // this.verbose(`appendThing: ${model.type}`);
+  // this.verbose(model);
   model.local = {};
   for (propertyName in model.properties) {
     const el = this.createPropertyElement(model, propertyName);
@@ -294,27 +282,11 @@ viewer.appendThing = function(model) {
     model.local[propertyName] = {view: el};
   }
 
-  this.thingListen(model, function(err, data) {
-    self.verbose(data);
-    for (const name in data) {
-      switch (name) { // TODO: mapping design pattern
-        case 'color':
-          model.local[name].view.children[0]
-            .setAttribute(name, data[name]); // TODO
-          break;
-        case 'on':
-          model.local[name].view.children[0]
-            .setAttribute('ui-toggle', 'value', data[name] ? 1 : 0);
-          break;
-        case 'level':
-          model.local[name].view.children[0]
-            .setAttribute('height', data[name] * 0.001);
-          break;
-
-        default:
-          self.verbose('TODO: callback: name');
-      }
-    }
+  this.poll(model, function(err, data) {
+    self.updateThingView(err, data, model);
+  });
+  this.listenThing(model, function(err, data) {
+    self.updateThingView(err, data, model);
   });
 
   return view;
@@ -323,7 +295,7 @@ viewer.appendThing = function(model) {
 
 viewer.handleResponse = function(err, data) {
   const self = viewer;
-  self.verbose(`handleResponse: ${typeof data}`);
+  // self.verbose(`handleResponse: ${typeof data}`);
   if (err || !data) {
     console.error(err);
     throw err;
@@ -333,7 +305,7 @@ viewer.handleResponse = function(err, data) {
   if (typeof data === 'string' && data) {
     model = data && JSON.parse(data);
   }
-  self.verbose(JSON.stringify(model));
+  // self.verbose(JSON.stringify(model));
   if (Array.isArray(model)) {
     let index;
     for (index = 0; index < model.length; index++) {
@@ -349,7 +321,7 @@ viewer.query = function(endpoint) {
   if (!endpoint) {
     endpoint = localStorage.endpoint;
   }
-  this.verbose(`log: query: ${endpoint}`);
+  // this.verbose(`log: query: ${endpoint}`);
   app.get(endpoint, viewer.handleResponse);
 };
 

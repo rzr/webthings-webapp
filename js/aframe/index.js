@@ -220,6 +220,8 @@ viewer.updateView = function(model, name, view) {
 viewer.appendProperties = function(model) {
   const view = null;
   let propertyName = null;
+
+  this.verbose(model);
   for (propertyName in model.properties) {
     const el = this.createPropertyElement(model, propertyName);
     try {

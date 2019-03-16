@@ -72,7 +72,7 @@ viewer.listen = function(property, callback) {
       if (app.pause) {
         ws.close();
       }
-      if ( callback)  {
+      if (callback) {
         callback(JSON.parse(evt.data).data);
       }
     };

@@ -319,38 +319,38 @@ ${authorize_endpoint}\
   };
 
   window.htmlOnLoad = function() {
-
     // hack to pass token from CLI
-    var hash = window.location.hash;
+    let hash = window.location.hash;
     if (hash) {
       hash = hash.substring(1, hash.length);
-      var url = 'http://0.0.0.0/' + hash;
-      var params = new URL(url).searchParams;
-      for (let entry of params.entries()){
+      const url = `http://0.0.0.0/${hash}`;
+      const params = new URL(url).searchParams;
+      for (const entry of params.entries()) {
         if (entry[0] && entry[1]) {
           localStorage[entry[0]] = entry[1];
         }
       }
-      const loc = window.location.protocol
-            + '//'
-            + window.location.host
-            + window.location.pathname;
-      if (!app.debug || confirm('Relocate to ' + loc)) {
+      const loc = `${window.location.protocol
+      }//${
+        window.location.host
+      }${window.location.pathname}`;
+      if (!app.debug || confirm(`Relocate to ${loc}`)) {
         window.history.replaceState({}, document.title, loc);
       }
     }
-    
+
     const runButton = document.getElementById('run');
     runButton.addEventListener('click', function() {
       app.main();
     });
 
     const clearButton = document.getElementById('clear');
-    if (clearButton)
+    if (clearButton) {
       clearButton.addEventListener('click', function() {
         document.form.console.value = '';
       });
-    
+    }
+
     const resetButton = document.getElementById('reset');
     resetButton.addEventListener('click', function() {
       document.form.console.value = '';
@@ -373,7 +373,7 @@ ${authorize_endpoint}\
 
     const urlInput = document.getElementById('url');
     if (localStorage.url && localStorage.url.length) {
-      urlInput.setAttribute('value',  localStorage.url);
+      urlInput.setAttribute('value', localStorage.url);
     } else if (urlInput.value && urlInput.value.length) {
       localStorage.url = urlInput.value;
     } else {
@@ -395,7 +395,7 @@ ${authorize_endpoint}\
 
     const endpointInput = document.getElementById('endpoint');
     if (localStorage.endpoint) {
-      endpoint.setAttribute('value',  localStorage.endpoint);
+      endpoint.setAttribute('value', localStorage.endpoint);
     } else if (window.form.endpoint.value) {
       localStorage.endpoint = window.form.endpoint.value;
     }

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!--
+     Copyright 2018-present Samsung Electronics France SAS, and other contributors
+     This Source Code Form is subject to the terms of the Mozilla Public
+     License, v. 2.0. If a copy of the MPL was not distributed with this
+     file, You can obtain one at http://mozilla.org/MPL/2.0/
+  -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>aframe-material😲😆😛</title>
+    <meta name="description" content="Aframe-Material">
+    <script src="https://aframe.io/releases/0.6.1/aframe.min.js"></script>
+    <script src="https://rawgit.com/mayognaise/aframe-mouse-cursor-component/master/dist/aframe-mouse-cursor-component.min.js"></script>
+    <script src="https://cdn.rawgit.com/zcanter/aframe-gradient-sky/master/dist/gradientsky.min.js"></script>
+    <script type="text/javascript">
+      // TODO : AFRAME.ASSETS_PATH = "https://cdn.jsdelivr.net/gh/etiennepinchon/aframe-material@master/./assets";
+    </script>
+    <script src="https://cdn.jsdelivr.net/gh/etiennepinchon/aframe-material@master//dist/aframe-material.js">
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <a-entity laser-controls="hand: right"></a-entity>
+
+      <a-entity> <a-camera look-controls-enabled wasd-controls-enabled mouse-cursor></a-camera></a-entity>
+
+      <!-- BEGIN INPUTS/KEYBOARD -->
+      <a-keyboard physical-keyboard="true"></a-keyboard>
+
+      <!-- END INPUTS/KEYBOARD -->
+
+      <!-- BEGIN FORM -->
+      <a-form name="form">
+
+        <a-rounded
+          position="-1 1 -2.5"
+          width="4"
+          height="5"
+          radius="0.05"
+          scale="0.3 0.3 0.3"
+          >
+          <a-button id="run" value="Connect"
+                    position=".5 4 0"
+                    width="4"
+                    ></a-button>
+
+          <a-button id="browse" value="Browse"
+                    position=".5 3 0"
+                    width="4"
+                    ></a-button>
+          <a-button id="reset" value="Reset"
+                    position=".5 2 0"
+                    width="4"
+                    ></a-button>
+          <a-button id="about" value="About"
+                    position=".5 1 0"
+                    width="4"
+                    ></a-button>
+
+      </a-rounded>
+
+      
+        <a-input id="url"
+                 placeholder="url" color="black"
+                 value="https://sosg.mozilla-iot.org"
+                 position="1 2 -2.5"
+                 ></a-input>
+        <a-input id="token"
+                 type="password" placeholder="Password" color="black"
+                 position="1 1.8 -2.5"
+                 ></a-input>
+
+        <a-input id="endpoint"
+                 type="text"
+                 placeholder="Endpoint: (/things)"
+                 value="/things"
+                 position="1 1.6 -2.5"
+                 ></a-input>
+      </a-form>
+
+      <!-- END FORM -->
+
+    </a-scene>
+
+  </body>
+</html>
+
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!--
+     Copyright 2018-present Samsung Electronics France SAS, and other contributors
+     This Source Code Form is subject to the terms of the Mozilla Public
+     License, v. 2.0. If a copy of the MPL was not distributed with this
+     file, You can obtain one at http://mozilla.org/MPL/2.0/
+  -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="theme-color" content="#317EFB"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="description" content="WebThings" />
+    <title>WebThings</title>
+    <link rel="icon" type="image/png" href="images/16x16/logo.png">
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script>var app = {}; </script>
+    <script src="js/index.js"></script>
+  </head>
+
+  <body
+    onload="window.htmlOnLoad();"
+    >
+    <div id="main" class="page">
+      <div class="contents">
+        <h1>WebThings</h1>
+
+        <p/>
+
+        <form name="form">
+
+
+          <input type="button" id="run" value="Connect" />
+          <input type="button" id="browse" value="Browse" />
+          <input type="button" id="reset" value="Reset" />
+          <input type="button" id="clear" value="Clear" />
+          <input type="button" id="about" value="About" />
+          <p/>
+          <input type="text" id="url"
+                 placeholder="http://gateway.local:8080"
+                 value="https://sosg.mozilla-iot.org"
+                 />
+</br>
+<input type="password" id="token"
+       placeholder="Token (to be pasted here)"
+       />
+</br>
+<input type="text" id="endpoint"
+       placeholder="Endpoint: (/things)"
+       value="/things"
+       />
+
+          <p/>
+
+          Console:<br />
+          <textarea rows="8" cols="40" name="console">
+          </textarea>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

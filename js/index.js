@@ -204,7 +204,7 @@
       return this.browse(authorize_endpoint, function(err, data) {
         if (!err) {
           if (data) {
-            window.getElementById('token').setAttribute('value', data);
+            document.getElementById('token').setAttribute('value', data);
             return self.query(endpoint);
           }
         }
@@ -271,7 +271,7 @@ ${authorize_endpoint}\
         request.onreadystatechange = function() {
           if (request.readyState == 4 && request.status == 200) {
             localStorage.token = JSON.parse(request.responseText).access_token;
-            window.getElementById('token').setAttribute('value', localStorage.token); // TODO
+            document.getElementById('token').setAttribute('value', localStorage.token); // TODO
             const pos = window.location.href.indexOf('?');
             if (pos) {
               const loc = window.location.href.substring(0, pos);
@@ -371,7 +371,7 @@ ${authorize_endpoint}\
     const browseButton = document.getElementById('browse');
     browseButton.addEventListener('click', function() {
       window.location.href =
-(app.debug) ? '00index.html' : 'aframe-ui-widgets.html';
+        (app.debug) ? '00index.html' : 'aframe-ui-widgets.html';
     });
 
     const urlInput = document.getElementById('url');
@@ -420,7 +420,7 @@ ${authorize_endpoint}\
     });
 
     // PWA
-    /*    if ('serviceWorker' in navigator) {
+    if (false && 'serviceWorker' in navigator) {
       try {
         navigator.serviceWorker.register('service-worker.js').then(
           function(registration) {
@@ -433,7 +433,7 @@ ${authorize_endpoint}\
         console.log(e.message);
       }
     }
-*/
+
     // Autoconnect
     // TODO add settings page to disable (for debuging)
     app.main();

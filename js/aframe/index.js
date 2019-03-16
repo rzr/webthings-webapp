@@ -239,8 +239,9 @@ viewer.updateThingView = function(err, data, model) {
         break;
       case 'number':
       case 'integer':
-        // TODO update in widget
+        console.log(`// TODO update in widget${data[name]}`);
         el.setAttribute('ui-slider', 'value', data[name]);
+        console.log(el);
         break;
       case 'string':
         el.setAttribute(name, data[name]); // TODO

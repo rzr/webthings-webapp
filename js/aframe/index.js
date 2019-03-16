@@ -58,6 +58,9 @@ viewer.poll = function(property, callback, delay) {
 
 
 viewer.listen = function(property, callback) {
+  if (property) {
+    return;
+  } // TODO
   const self = this;
   const useWebsockets = true;
   let wsUrl = localStorage.url.replace('http', 'ws');
@@ -103,6 +106,47 @@ viewer.listen = function(property, callback) {
 };
 
 
+viewer.thingListen = function(thing, callback) {
+  const self = this;
+  const useWebsockets = true;
+  let wsUrl = thing.links[thing.links.length - 1].href;
+  wsUrl += `?jwt=${localStorage.token}`;
+  let ws = null;
+  console.log(wsUrl);
+  if (useWebsockets) {
+    ws = new WebSocket(wsUrl);
+    ws.onclose = function(evt) {
+      self.verbose(wsUrl);
+      self.verbose(evt);
+      // CLOSE_ABNORMAL
+      if (evt.code === 1006) {
+        // self.poll(property, callback);
+      }
+    };
+    ws.onmessage = function(evt) {
+      self.verbose(`onmessage:${evt}`);
+      self.verbose(evt.data);
+
+      if (app.pause) {
+        ws.close();
+      }
+      if (callback) {
+        let data = null;
+        try {
+          data = JSON.parse(evt.data).data;
+          console.log(data);
+        } catch (e) {
+          self.verbose(`error: ${e}`);
+        }
+        callback((data == null), data);
+      }
+    };
+  } else {
+    // self.poll(property, callback); //TODO
+  }
+};
+
+
 viewer.createPropertyElement = function(model, name) {
   const self = this;
   const property = model.properties[name];
@@ -110,7 +154,6 @@ viewer.createPropertyElement = function(model, name) {
   const semType = property['@type'];
   let el = null;
   const endpoint = `${model.links[0].href}/${name}`;
-
   const view = document.createElement('a-text');
   const suffix = (property.title) ? `:\n(${property.title})` : '';
   view.setAttribute('value',
@@ -217,11 +260,13 @@ viewer.updateView = function(model, name, view) {
 };
 
 
-viewer.appendProperties = function(model) {
+viewer.appendThing = function(model) {
+  const self = this;
   const view = null;
   let propertyName = null;
-
+  this.verbose(`appendThing: ${model.type}`);
   this.verbose(model);
+  model.local = {};
   for (propertyName in model.properties) {
     const el = this.createPropertyElement(model, propertyName);
     try {
@@ -246,7 +291,31 @@ viewer.appendProperties = function(model) {
       this.rotation[0] = 0;
     }
     this.root.appendChild(el);
+    model.local[propertyName] = {view: el};
   }
+
+  this.thingListen(model, function(err, data) {
+    self.verbose(data);
+    for (const name in data) {
+      switch (name) { // TODO: mapping design pattern
+        case 'color':
+          model.local[name].view.children[0]
+            .setAttribute(name, data[name]); // TODO
+          break;
+        case 'on':
+          model.local[name].view.children[0]
+            .setAttribute('ui-toggle', 'value', data[name] ? 1 : 0);
+          break;
+        case 'level':
+          model.local[name].view.children[0]
+            .setAttribute('height', data[name] * 0.001);
+          break;
+
+        default:
+          self.verbose('TODO: callback: name');
+      }
+    }
+  });
 
   return view;
 };
@@ -271,7 +340,7 @@ viewer.handleResponse = function(err, data) {
       viewer.handleResponse(err, model[index]);
     }
   } else {
-    self.appendProperties(model);
+    self.appendThing(model);
   }
 };
 

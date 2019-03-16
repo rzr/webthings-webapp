@@ -221,11 +221,8 @@
 
     if (url) { // TODO: refactor
       try {
-        // const searchParams = new URLSearchParams(url.search);
-        const searchParams = url.searchParams;
-        code = searchParams.get('code');
-        this.log(`code: ${code}`);
-        this.log(`TODO: searchParms: ${searchParams}`); // %3Fcode..
+        code = url.searchParams.get('code');
+        this.log(`code: should not be null: ${code}`);
       } catch (err) {
         this.log(`TODO: err: ${err}`);
         this.log(err);

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!-- 
+     Copyright 2019-present Samsung Electronics France SAS, and other contributors
+     This Source Code Form is subject to the terms of the Mozilla Public
+     License, v. 2.0. If a copy of the MPL was not distributed with this
+     file, You can obtain one at http://mozilla.org/MPL/2.0/
+  -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://aframe.io/releases/0.9.0/aframe.min.js"></script>
+
+    <script>
+AFRAME.registerComponent('console', {
+  init: function () {
+    this.log(new Date());
+  },
+
+log: function (text) {
+  text+="\n";
+  text+=this.el.getAttribute('value');
+  this.el.setAttribute('value', text);
+}
+
+});
+</script>
+
+  </head>
+  <body>
+    <a-scene>
+      <a-text id="console" console
+              value="console:"
+              position="0 0 -5"
+              color="#808080"
+              />
+    </a-scene>
+  </body>
+</html>

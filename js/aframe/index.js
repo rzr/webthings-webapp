@@ -102,6 +102,7 @@ viewer.listen = function(property, callback) {
   }
 };
 
+
 viewer.createPropertyElement = function(model, name) {
   const self = this;
   const property = model.properties[name];
@@ -140,12 +141,17 @@ viewer.createPropertyElement = function(model, name) {
         el.setAttribute('color', '#FF0000');
         el.setAttribute('radius', '0.1');
         self.listen(property, function(err, data) {
-          console.log(`callback: ${semType}=${data.color}`);
+          console.log(`callback: ${semType}=${data}`);
+          self.verbose(data);
           if (err || !data) {
             self.verbose(`error: ${err}`);
             throw (err);
           }
-          el.setAttribute('color', data.color);
+
+          for (const key in data) {
+            self.verbose(`key: ${key}`);
+            el.setAttribute(key, data[key]);
+          } // TODO mapping
         });
       } else {
         el = document.createElement('a-box');

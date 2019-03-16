@@ -223,13 +223,14 @@
       try {
         const searchParams = new URLSearchParams(url.search);
         code = searchParams.get('code');
-        this.log(`TODO: code: ${code}`);
+        this.log(`code: ${code}`);
       } catch (err) {
         this.log(`TODO: err: ${err}`);
         this.log(err);
       }
       if (!code && url.search) {
-        this.log(`TODO: workaround: search: ${url.search}`);
+        this.log(`TODO: no code ? workaround: search: ${url.search}`); // ?code=...
+        const searchParams = new URLSearchParams(url.search);
         this.log(`TODO: searchParms: ${searchParams}`);
         const replace = url.search.replace(/^%3F/, '?');
         if (replace != url.search) {

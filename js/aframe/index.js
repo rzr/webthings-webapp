@@ -57,7 +57,7 @@ viewer.poll = function(property, callback, delay) {
 
 viewer.listen = function(property, callback) {
   const self = this;
-  const useWebsockets = !true;
+  const useWebsockets = true;
   let ws = null;
 
   if (useWebsockets) {
@@ -72,7 +72,9 @@ viewer.listen = function(property, callback) {
       if (app.pause) {
         ws.close();
       }
-      update(JSON.parse(evt.data).data[property]);
+      if ( callback)  {
+        callback(JSON.parse(evt.data).data);
+      }
     };
   } else {
     if (ws) {

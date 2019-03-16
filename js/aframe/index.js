@@ -132,6 +132,7 @@ viewer.createPropertyElement = function(model, name) {
     case 'integer':
       el = document.createElement('a-entity');
       el.setAttribute('rotation', '90 0 0');
+      el.setAttribute('scale', '.8 .8 .8');
       el.setAttribute('ui-slider', 'value', 0);
       el.setAttribute('ui-slider', 'min', 0);
       el.setAttribute('ui-slider', 'max', 100); // TODO

@@ -346,7 +346,7 @@ ${authorize_endpoint}\
     const browseButton = document.getElementById('browse');
     browseButton.addEventListener('click', function() {
       window.location.href =
-        (app.debug) ? '00index.html' : 'aframe-ui-widgets.html';
+(app.debug) ? '00index.html' : 'aframe-ui-widgets.html';
     });
 
     const urlInput = document.getElementById('url');

@@ -221,17 +221,19 @@
 
     if (url) { // TODO: refactor
       try {
-        const searchParams = new URLSearchParams(url.search);
+        // const searchParams = new URLSearchParams(url.search);
+        const searchParams = url.searchParams;
         code = searchParams.get('code');
         this.log(`code: ${code}`);
+        this.log(`TODO: searchParms: ${searchParams}`); // %3Fcode..
       } catch (err) {
         this.log(`TODO: err: ${err}`);
         this.log(err);
       }
       if (!code && url.search) {
+        const searchParams = new URLSearchParams(url.search.substring(1, url.search.length));
         this.log(`TODO: no code ? workaround: search: ${url.search}`); // ?code=...
-        const searchParams = new URLSearchParams(url.search);
-        this.log(`TODO: searchParms: ${searchParams}`);
+        this.log(`TODO: searchParms: ${searchParams}`); // %3Fcode..
         const replace = url.search.replace(/^%3F/, '?');
         if (replace != url.search) {
           this.log(`TODO: workaround: replace: ${replace}`);

@@ -10,12 +10,14 @@
 const viewer = app.viewer;
 
 viewer.count = 0;
+
 viewer.rotation = [ 0, 0, 0];
 
 viewer.verbose = !console.log || function(text) {
   console.log(text);
+  let value = 0;
   if (this.log && app.debug) {
-    let value = this.log.getAttribute('text', value).value || '';
+    value = this.log.getAttribute('text', value).value || '';
     value = `${value}\n${text}`;
     this.log.setAttribute('text', 'value', value);
   }
@@ -58,22 +60,38 @@ viewer.poll = function(property, callback, delay) {
 viewer.listen = function(property, callback) {
   const self = this;
   const useWebsockets = true;
-  let ws = null;
+  let wsUrl = localStorage.url.replace('http', 'ws');
+  wsUrl += '/things/virtual-things-0'; // TODO
+  wsUrl += `?jwt=${localStorage.token}`;
 
+  let ws = null;
+  console.log(wsUrl);
   if (useWebsockets) {
     ws = new WebSocket(wsUrl);
     ws.onclose = function(evt) {
-      // / CLOSE_ABNORMAL
+      self.verbose(wsUrl);
+      self.verbose(evt);
+      // CLOSE_ABNORMAL
       if (evt.code === 1006) {
         self.poll(property, callback);
       }
     };
     ws.onmessage = function(evt) {
+      self.verbose(`onmessage:${evt}`);
+      self.verbose(evt.data);
+
       if (app.pause) {
         ws.close();
       }
       if (callback) {
-        callback(JSON.parse(evt.data).data);
+        let data = null;
+        try {
+          data = JSON.parse(evt.data).data;
+          console.log(data);
+        } catch (e) {
+          self.verbose(`error: ${e}`);
+        }
+        callback((data == null), data);
       }
     };
   } else {
@@ -122,7 +140,9 @@ viewer.createPropertyElement = function(model, name) {
         el.setAttribute('color', '#FF0000');
         el.setAttribute('radius', '0.1');
         self.listen(property, function(err, data) {
+          console.log(`callback: ${semType}=${data.color}`);
           if (err || !data) {
+            self.verbose(`error: ${err}`);
             throw (err);
           }
           el.setAttribute('color', data.color);
@@ -210,7 +230,8 @@ viewer.appendProperties = function(model) {
 
     if (this.rotation[1] >= 2 * Math.PI) {
       this.rotation[1] = 0;
-      this.rotation[0] += 2 * Math.PI / 2 / 2 / step; // TODO : bottom
+      this.rotation[0] += 2 * Math.PI / 2 / 2 / step;
+      // TODO : bottom
     }
     if (Math.abs(this.rotation[0]) >=
         Math.ceil(2 * Math.PI / 2 / 2 / step) * step) {
@@ -235,7 +256,7 @@ viewer.handleResponse = function(err, data) {
   if (typeof data === 'string' && data) {
     model = data && JSON.parse(data);
   }
-
+  self.verbose(JSON.stringify(model));
   if (Array.isArray(model)) {
     let index;
     for (index = 0; index < model.length; index++) {

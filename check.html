@@ -17,11 +17,15 @@ AFRAME.registerComponent('console', {
     this.log(new Date());
   },
 
-log: function (text) {
-  text+="\n";
-  text+=this.el.getAttribute('value');
-  this.el.setAttribute('value', text);
-}
+  log: function (text) {
+    text+="\n";
+    text+=this.el.getAttribute('value');
+    this.el.setAttribute('value', text);
+  },
+
+  click: function() {
+    log("click");
+  }
 
 });
 </script>

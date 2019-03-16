@@ -11,7 +11,6 @@
   // 'use strict';
   app.debug = false;
   app.isLoading = true;
-  app.datacontent = document.querySelector('.textarea');
   app.localStorage = localStorage;
   app.log = function(arg) {
     if (arg && arg.name && arg.message) {
@@ -24,14 +23,13 @@
     const el = document.getElementById('console');
     let value;
     if (el) {
-      value = el.getAttribute('value');
+      value = el.value || '';
       if (value.length > 1024 * 1024) {
         value = '(...)\n';
       }
       value += text;
-      value = el.setAttribute('value', value);
-      value = el.setAttribute('scrollTop',
-                              el.getAttribute('scrollHeight')); // TODO check
+      el.value = value;
+      el.scrollTop = el.scrollHeight;
     }
   };
 

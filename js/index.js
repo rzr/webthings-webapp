@@ -26,7 +26,8 @@
       let value = el.getAttribute('value');
       value += text;
       value = el.setAttribute('value', value);
-      value = el.setAttribute('scrollTop', el.getAttribute('scrollHeight')); // TODO check
+      value = el.setAttribute('scrollTop',
+                              el.getAttribute('scrollHeight')); // TODO check
     }
   };
 
@@ -270,7 +271,8 @@ ${authorize_endpoint}\
         const request = new XMLHttpRequest();
         request.onreadystatechange = function() {
           if (request.readyState == 4 && request.status == 200) {
-            localStorage.token = JSON.parse(request.responseText).access_token;
+            localStorage.token =
+              JSON.parse(request.responseText).access_token;
             document.getElementById('token').setAttribute('value', localStorage.token); // TODO
             const pos = window.location.href.indexOf('?');
             if (pos) {
@@ -419,8 +421,8 @@ ${authorize_endpoint}\
       }
     });
 
-    // PWA
-    if (false && 'serviceWorker' in navigator) {
+    // TODO: enable PWA
+    if (!navigator && 'serviceWorker' in navigator) {
       try {
         navigator.serviceWorker.register('service-worker.js').then(
           function(registration) {

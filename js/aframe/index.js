@@ -10,29 +10,83 @@
 const viewer = app.viewer;
 
 viewer.count = 0;
-viewer.edge = {x: 2,
-               y: 1,
-               z: 2};
-viewer.position = {x: -viewer.edge.x,
-                   y: -viewer.edge.y,
-                   z: -2};
-
 viewer.rotation = [ 0, 0, 0];
 
 viewer.verbose = !console.log || function(text) {
   console.log(text);
   if (this.log && app.debug) {
-    var value = this.log.getAttribute('text', value).value || '';
+    let value = this.log.getAttribute('text', value).value || '';
     value = `${value}\n${text}`;
     this.log.setAttribute('text', 'value', value);
   }
 };
 
+viewer.poll = function(property, callback, delay) {
+  const self = this;
+  const url = localStorage.url + property.links[0].href;
+  if (!delay) {
+    delay = 1000;
+  }
+  this.verbose(`loop: ${delay}`);
+  interval = setInterval(function() {
+    self.verbose(`fetch: ${url}`);
+    if (app.pause) {
+      self.verbose(`stopping: ${app.pause}`);
+      inverval = clearInterval(interval);
+    }
+    fetch(url,
+          {headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.token}`,
+          }}
+    )
+      .then(function(response) {
+        console.log(`recieved: ${response}`);
+        return response.json();
+      })
+      .then(function(json) {
+        self.verbose(`parsed: ${json}`);
+        if (callback) {
+          callback(null, json);
+        }
+      });
+  }, delay);
+};
+
+
+viewer.listen = function(property, callback) {
+  const self = this;
+  const useWebsockets = !true;
+  let ws = null;
+
+  if (useWebsockets) {
+    ws = new WebSocket(wsUrl);
+    ws.onclose = function(evt) {
+      // / CLOSE_ABNORMAL
+      if (evt.code === 1006) {
+        self.poll(property, callback);
+      }
+    };
+    ws.onmessage = function(evt) {
+      if (app.pause) {
+        ws.close();
+      }
+      update(JSON.parse(evt.data).data[property]);
+    };
+  } else {
+    if (ws) {
+      ws.close();
+    }
+    self.poll(property, callback);
+  }
+};
 
 viewer.createPropertyElement = function(model, name) {
   const self = this;
   const property = model.properties[name];
   const type = property.type;
+  const semType = property['@type'];
   let el = null;
   const endpoint = `${model.links[0].href}/${name}`;
 
@@ -45,8 +99,8 @@ viewer.createPropertyElement = function(model, name) {
   view.setAttribute('width', 1);
   view.setAttribute('align', 'center');
   const id = `${this.count++}`;
-  switch (type) {
 
+  switch (type) {
     case 'boolean':
       el = document.createElement('a-entity');
       el.setAttribute('ui-toggle', 'value', 0);
@@ -54,11 +108,28 @@ viewer.createPropertyElement = function(model, name) {
       break;
     case 'number':
     case 'integer':
+    // const number = 1; // TODO
       el = document.createElement('a-cylinder');
       el.setAttribute('color', '#A0A0FF');
-      const number = 1; // TODO
-      el.setAttribute('height', '0.1' * number);
+      el.setAttribute('height', '0.1' * 1);
       el.setAttribute('radius', '0.1');
+      break;
+    case 'string':
+      if (semType === 'ColorProperty') {
+        el = document.createElement('a-sphere');
+        el.setAttribute('color', '#FF0000');
+        el.setAttribute('radius', '0.1');
+        self.listen(property, function(err, data) {
+          if (err || !data) {
+            throw (err);
+          }
+          el.setAttribute('color', data.color);
+        });
+      } else {
+        el = document.createElement('a-box');
+        el.setAttribute('color', '#00FF00');
+        el.setAttribute('scale', '.1 .1 .1');
+      }
       break;
     default:
       el = document.createElement('a-sphere');
@@ -128,43 +199,22 @@ viewer.appendProperties = function(model) {
     } catch (err) {
       console.error(`ignore: ${err}`);
     }
-    // el.setAttribute('position', `${this.position.x} ${this.position.y} ${this.position.z}`);
-    // this.position = [ 0, 1.6, -20 ];
-
-    // THREE.Vector3.apply(el.object3D.rotation, this.rotation);
-
     el.object3D.rotateY(this.rotation[1]);
     el.object3D.rotateX(this.rotation[0]);
     el.object3D.translateY(1.8);
     const step = 9;
     el.object3D.translateZ(-2);
-
-    // THREE.Object3d.translateZ.pply(el.object3D.position, this.position);
     this.rotation[1] += (2 * Math.PI / step) / Math.cos(this.rotation[0]);
 
     if (this.rotation[1] >= 2 * Math.PI) {
       this.rotation[1] = 0;
       this.rotation[0] += 2 * Math.PI / 2 / 2 / step; // TODO : bottom
     }
-    // alert(this.rotation[1]);
-
-    if (Math.abs(this.rotation[0]) >= Math.ceil(2 * Math.PI / 2 / 2 / step) * step) {
+    if (Math.abs(this.rotation[0]) >=
+        Math.ceil(2 * Math.PI / 2 / 2 / step) * step) {
       this.rotation[0] = 0;
-      alert('max');
     }
-
-
     this.root.appendChild(el);
-    this.position.y += 0.4;
-  }
-  if (this.position.y > this.edge.y) {
-    this.position.x += 2;
-    this.position.y = -this.edge.y;
-  }
-  if (this.position.x > this.edge.x) {
-    this.position.x = -this.edge.x;
-    this.position.z -= this.edge.z;
-    this.position.y = -this.edge.y;
   }
 
   return view;
@@ -207,7 +257,7 @@ viewer.query = function(endpoint) {
 viewer.start = function() {
   this.verbose(`start: ${localStorage.url}`);
   if (!localStorage.url) {
-    console.warn('Gateway token unset. Visit your gateway Settings -> Developer -> Create local authorization');
+    console.warn('Gateway token unset');
     window.location = 'index.html';
   } else {
     this.query();

@@ -22,8 +22,12 @@
     console.log(text);
 
     const el = document.getElementById('console');
+    let value;
     if (el) {
-      let value = el.getAttribute('value');
+      value = el.getAttribute('value');
+      if (value.length > 1024 * 1024) {
+        value = '(...)\n';
+      }
       value += text;
       value = el.setAttribute('value', value);
       value = el.setAttribute('scrollTop',
@@ -273,7 +277,9 @@ ${authorize_endpoint}\
           if (request.readyState == 4 && request.status == 200) {
             localStorage.token =
               JSON.parse(request.responseText).access_token;
-            document.getElementById('token').setAttribute('value', localStorage.token); // TODO
+            // TODO: app.emit('token', token);
+            document.getElementById('token').setAttribute('value',
+                                                          localStorage.token);
             const pos = window.location.href.indexOf('?');
             if (pos) {
               const loc = window.location.href.substring(0, pos);

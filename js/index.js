@@ -319,6 +319,27 @@ ${authorize_endpoint}\
   };
 
   window.htmlOnLoad = function() {
+
+    // hack to pass token from CLI
+    var hash = window.location.hash;
+    if (hash) {
+      hash = hash.substring(1, hash.length);
+      var url = 'http://0.0.0.0/' + hash;
+      var params = new URL(url).searchParams;
+      for (let entry of params.entries()){
+        if (entry[0] && entry[1]) {
+          localStorage[entry[0]] = entry[1];
+        }
+      }
+      const loc = window.location.protocol
+            + '//'
+            + window.location.host
+            + window.location.pathname;
+      if (!app.debug || confirm('Relocate to ' + loc)) {
+        window.history.replaceState({}, document.title, loc);
+      }
+    }
+    
     const runButton = document.getElementById('run');
     runButton.addEventListener('click', function() {
       app.main();

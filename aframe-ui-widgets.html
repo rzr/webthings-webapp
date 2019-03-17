@@ -28,15 +28,15 @@ AFRAME.registerComponent('root', {
 
 AFRAME.registerComponent('console', {
   init: function () {
-    app.viewer.log = this.el;
-    app.viewer.verbose(document.location);
+    app.viewer.console = this.el;
+    app.viewer.log(document.location);
   }
 }
 );
     </script>
   </head>
   <body>
-    <a-scene retain-camera debug stats="false">
+    <a-scene retain-camera  background="color: #000">
       <a-entity root><a-entity>
       <a-camera  mouse-cursor  wasd-controls>
         <a-cursor color="#FF6E4A"></a-cursor>
@@ -46,7 +46,11 @@ AFRAME.registerComponent('console', {
               position="0 -2 0"
               rotation="-90 0 0"
               color="#808080"
-              />
+              ></a-text>
+      <a-sky position="0 0 0 " src="http://www.rzr.cloudns.org:51280/stream.ogg"
+               width="640" height="480"
+               scale=".01 .01 .01"
+             ></a-sky>
     </a-scene>
   </body>
 </html>

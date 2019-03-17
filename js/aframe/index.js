@@ -271,7 +271,6 @@ viewer.appendThing = function(model) {
     }
     el.object3D.rotateY(this.rotation[1]);
     el.object3D.rotateX(this.rotation[0]);
-    el.object3D.translateY(1.8);
     const step = 9;
     el.object3D.translateZ(-2);
     this.rotation[1] += (2 * Math.PI / step) / Math.cos(this.rotation[0]);

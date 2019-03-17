@@ -38,7 +38,7 @@ AFRAME.registerComponent('console', {
   <body>
     <a-scene retain-camera  background="color: #000">
       <a-entity root><a-entity>
-      <a-camera  mouse-cursor  wasd-controls position="0 0 0">
+      <a-camera  mouse-cursor  wasd-controls>
         <a-cursor color="#FF6E4A"></a-cursor>
         <a-entity laser-controls="hand: right"></a-entity>
       </a-camera>
@@ -47,7 +47,7 @@ AFRAME.registerComponent('console', {
               rotation="-90 0 0"
               color="#808080"
               ></a-text>
-      <a-sky position="0 0 0 " src="http://www.rzr.cloudns.org:51280/stream.ogg"
+      <a-sky position="0 0 0" src="http://www.rzr.cloudns.org:51280/stream.ogg"
                width="640" height="480"
                scale=".01 .01 .01"
              ></a-sky>

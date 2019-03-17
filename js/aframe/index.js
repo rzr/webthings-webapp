@@ -13,7 +13,10 @@ viewer.count = 0;
 
 viewer.rotation = [ 0, 0, 0];
 
-viewer.verbose = !console.log || function(text) {
+viewer.log = !console.log || function(text) {
+  if (!app.debug) {
+    return;
+  }
   console.log(text);
   let value = 0;
   if (this.log && app.debug) {
@@ -21,7 +24,7 @@ viewer.verbose = !console.log || function(text) {
     if (value.length > 1024) {
       value = '(...)\n';
     }
-    value = `${value}\n${text}`;
+    value = `${text}\n${value}`;
     this.log.setAttribute('text', 'value', value);
   }
 };
@@ -30,7 +33,7 @@ viewer.verbose = !console.log || function(text) {
 viewer.poll = function(thing, callback) {
   const self = this;
   const url = `${localStorage.url + thing.href}/properties`;
-  self.verbose(`fetch: ${url}`);
+  self.log(`fetch: ${url}`);
   fetch(url,
         {headers: {
           'Content-Type': 'application/json',
@@ -39,12 +42,12 @@ viewer.poll = function(thing, callback) {
         }}
   )
     .then(function(response) {
-      self.verbose(`recieved:`);
+      self.log(`recieved:`);
       return response.json();
     })
     .then(function(json) {
-      self.verbose(`parsed: ${json}`);
-      self.verbose(json);
+      self.log(`parsed: ${json}`);
+      self.log(json);
       if (callback) {
         callback((json === null), json);
       }
@@ -59,7 +62,7 @@ viewer.startPoll = function(thing, callback, delay) {
   }
   interval = setInterval(function() {
     if (app.pause) {
-      self.verbose(`stopping: ${app.pause}`);
+      self.log(`stopping: ${app.pause}`);
       inverval = clearInterval(interval);
     }
     self.poll(thing, callback);
@@ -78,8 +81,8 @@ viewer.listenThing = function(thing, callback) {
   if (useWebsockets) {
     ws = new WebSocket(wsUrl);
     ws.onclose = function(evt) {
-      self.verbose(wsUrl);
-      self.verbose(evt);
+      self.log(wsUrl);
+      self.log(evt);
       // CLOSE_ABNORMAL
       if (evt.code === 1006) {
         self.startPoll(thing, callback);
@@ -94,7 +97,7 @@ viewer.listenThing = function(thing, callback) {
         try {
           data = JSON.parse(evt.data).data;
         } catch (e) {
-          self.verbose(`error: ${e}`);
+          self.log(`error: ${e}`);
         }
         callback((data == null), data);
       }
@@ -121,7 +124,7 @@ viewer.createPropertyElement = function(model, name) {
   view.setAttribute('width', 1);
   view.setAttribute('align', 'center');
   const id = `${this.count++}`;
-  self.verbose(`createPropertyElement: ${type}/${semType}`);
+  self.log(`createPropertyElement: ${type}/${semType}`);
   switch (type) {
     case 'boolean':
       el = document.createElement('a-entity');
@@ -143,14 +146,14 @@ viewer.createPropertyElement = function(model, name) {
         el.setAttribute('color', '#FF0000');
         el.setAttribute('radius', '0.1');
       } else {
-        self.verbose(model);
+        self.log(model);
         el = document.createElement('a-box');
         el.setAttribute('color', '#00FF00');
         el.setAttribute('scale', '.1 .1 .1');
       }
       break;
     default:
-      self.verbose(`TODO: ${type}`);
+      self.log(`TODO: ${type}`);
       el = document.createElement('a-octahedron');
       el.setAttribute('color', '#FF0000');
       el.setAttribute('radius', '0.1');
@@ -215,7 +218,7 @@ viewer.startUpdateProperty = function(model, name, view) {
                             }\n${t}\n${data})`);
           break;
         default:
-          self.verbose('TODO:');
+          self.log('TODO:');
       }
     }
   });
@@ -227,10 +230,10 @@ viewer.updateThingView = function(err, data, model) {
   if (err) {
     throw err;
   }
-  self.verbose('updateThingView');
-  self.verbose(model);
+  self.log('updateThingView');
+  self.log(model);
   for (const name in data) {
-    self.verbose('updateThingView/prop/${name}');
+    self.log('updateThingView/prop/${name}');
     const type = model.properties[name].type;
     const el = model.local[name].view.children[0];
     switch (type) { // TODO: mapping design pattern
@@ -239,15 +242,14 @@ viewer.updateThingView = function(err, data, model) {
         break;
       case 'number':
       case 'integer':
-        console.log(`// TODO update in widget${data[name]}`);
+        self.log(`// TODO update in widget${data[name]}`);
         el.setAttribute('ui-slider', 'value', data[name]);
-        console.log(el);
         break;
       case 'string':
         el.setAttribute(name, data[name]); // TODO
         break;
       default:
-        self.verbose(`TODO: callback: ${name} : ${type}`);
+        self.log(`TODO: callback: ${name} : ${type}`);
     }
   }
 };
@@ -257,8 +259,8 @@ viewer.appendThing = function(model) {
   const self = this;
   const view = null;
   let propertyName = null;
-  // this.verbose(`appendThing: ${model.type}`);
-  // this.verbose(model);
+  // this.log(`appendThing: ${model.type}`);
+  // this.log(model);
   model.local = {};
   for (propertyName in model.properties) {
     const el = this.createPropertyElement(model, propertyName);
@@ -300,7 +302,7 @@ viewer.appendThing = function(model) {
 
 viewer.handleResponse = function(err, data) {
   const self = viewer;
-  // self.verbose(`handleResponse: ${typeof data}`);
+  // self.log(`handleResponse: ${typeof data}`);
   if (err || !data) {
     console.error(err);
     throw err;
@@ -310,7 +312,7 @@ viewer.handleResponse = function(err, data) {
   if (typeof data === 'string' && data) {
     model = data && JSON.parse(data);
   }
-  // self.verbose(JSON.stringify(model));
+  // self.log(JSON.stringify(model));
   if (Array.isArray(model)) {
     let index;
     for (index = 0; index < model.length; index++) {
@@ -326,13 +328,13 @@ viewer.query = function(endpoint) {
   if (!endpoint) {
     endpoint = localStorage.endpoint;
   }
-  // this.verbose(`log: query: ${endpoint}`);
+  // this.log(`log: query: ${endpoint}`);
   app.get(endpoint, viewer.handleResponse);
 };
 
 
 viewer.start = function() {
-  this.verbose(`start: ${localStorage.url}`);
+  this.log(`start: ${localStorage.url}`);
   if (!localStorage.url) {
     console.warn('Gateway token unset');
     window.location = 'index.html';

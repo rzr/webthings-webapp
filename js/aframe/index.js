@@ -271,12 +271,12 @@ viewer.appendThing = function(model) {
     }
     el.object3D.rotateY(this.rotation[1]);
     el.object3D.rotateX(this.rotation[0]);
-    const step = 9;
-    el.object3D.translateZ(-2);
+    const step = 8;
+    el.object3D.translateZ(-4);
     this.rotation[1] += (2 * Math.PI / step) / Math.cos(this.rotation[0]);
 
     if (this.rotation[1] >= 2 * Math.PI) {
-      this.rotation[1] = 0;
+      this.rotation[1] = 2 * Math.PI - this.rotation[1];
       this.rotation[0] += 2 * Math.PI / 2 / 2 / step;
       // TODO : bottom
     }
@@ -284,6 +284,8 @@ viewer.appendThing = function(model) {
         Math.ceil(2 * Math.PI / 2 / 2 / step) * step) {
       this.rotation[0] = 0;
     }
+    el.setAttribute('scale', '2 2 2');
+
     this.root.appendChild(el);
     model.local[propertyName] = {view: el};
   }

@@ -79,20 +79,29 @@ AFRAME.registerComponent('myCursor', {
 
 </script>
 
+            <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
   </head>
   <body>
     <a-scene>
 
-      <a-camera>
+      <a-camera position="0 0 5">
         <a-cursor color="#FF5555" myCursor></a-cursor>
         <a-entity laser-controls="hand: left"></a-entity>
       </a-camera>
 
+      <a-entity environment="preset: default ; grid: crosses"></a-entity>
+      
       <a-entity gearvr-controls="hand: right"></a-entity>
+
+
+      <a-video position="2 0 0 " src="http://www.rzr.cloudns.org:51280/stream.ogg"
+               width="3" height="1.5"
+               ></a-video>
+
       
       <a-text id="console" console
               value="console:"
-              position="0 0 -5"
+              position="0 0 0"
               color="#808080"
               />
       

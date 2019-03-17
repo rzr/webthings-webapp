@@ -10,17 +10,30 @@
   <head>
     <meta charset="utf-8" />
     <script src="https://aframe.io/releases/0.9.0/aframe.min.js"></script>
-
     <script>
 AFRAME.registerComponent('console', {
   init: function () {
-    this.log(new Date());
-  },
+    var that = this;
+    this.log('log: init:');
 
-  log: function (text) {
+    for (var event of ['stateadded', 'mouseenter']) {
+      this.log('listen: ' + event);
+      this.el.addEventListener(event, function (evt) {
+        that.log("event: " + event + ": " +JSON.stringify(evt));
+      });
+   }
+   setInterval(function(){that.log();}, 60*1000);
+   },
+
+tick: function() {
+},
+
+
+log: function (text) {
+    if (!text) text = new Date();
     text+="\n";
     text+=this.el.getAttribute('value');
-    this.el.setAttribute('value', text);
+    this.el.setAttribute('value', text.substring(0,1024));
   },
 
   click: function() {
@@ -28,19 +41,23 @@ AFRAME.registerComponent('console', {
   }
 
 });
+
 </script>
 
   </head>
   <body>
     <a-scene>
-      
-      <a-entity gearvr-controls></a-entity>
-      
+
+      <a-camera>
+        <a-cursor></a-cursor>
+      </a-camera>
+
       <a-text id="console" console
               value="console:"
               position="0 0 -5"
               color="#808080"
               />
+      
     </a-scene>
   </body>
 </html>

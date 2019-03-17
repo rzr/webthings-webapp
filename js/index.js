@@ -227,26 +227,6 @@
         this.log(`TODO: err: ${err}`);
         this.log(err);
       }
-      if (!code && url.search) {
-        const searchParams = new URLSearchParams(url.search.substring(1, url.search.length));
-        this.log(`TODO: no code ? workaround: search: ${url.search}`); // ?code=...
-        this.log(`TODO: searchParms: ${searchParams}`); // %3Fcode..
-        const replace = url.search.replace(/^%3F/, '?');
-        if (replace != url.search) {
-          this.log(`TODO: workaround: replace: ${replace}`);
-          this.log(`TODO: check: search: ${url.search}`);
-          this.log(`TODO: document.URL: ${document.URL}`);
-        }
-
-        try {
-          code = url.search.substring(
-            url.search.indexOf('code=') + 'code='.length,
-            url.search.indexOf('&')
-          );
-        } catch (err) {
-          code = null;
-        }
-      }
 
       if (!code && !isCallback) {
         return setTimeout(function() {

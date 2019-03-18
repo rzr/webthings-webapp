@@ -136,7 +136,7 @@
 
   app.get = function(endpoint, callback) {
     const url = localStorage.url + endpoint;
-    this.log(`url: ${url}`); // TODO
+    this.log(`get: url: ${url}`);
     const token = localStorage.token;
     const request = new XMLHttpRequest();
     request.addEventListener('load', function() {
@@ -146,7 +146,9 @@
     });
     request.open('GET', url);
     request.setRequestHeader('Accept', 'application/json');
-    request.setRequestHeader('Authorization', `Bearer ${token}`);
+    if (token.length > 8) {
+      request.setRequestHeader('Authorization', `Bearer ${token}`);
+    }
     request.send();
   };
 
@@ -170,14 +172,17 @@
 
   app.query = function(endpoint, token) {
     const self = this;
-    console.log(`query: ${endpoint}`);
-
+    this.log(`query: ${endpoint}`);
     if (!token) {
       token = localStorage.token;
     }
-    console.log(`query: ${url}`);
+    if (!endpoint) {
+      endpoint = localStorage.endpoint;
+    }
+    
     this.get(endpoint, function(err, data) {
       if (err || !data) {
+        console.error(err);
         throw err;
       }
       const items = data && JSON.parse(data) || [];
@@ -192,7 +197,7 @@
     const self = this;
     this.log(`request: ${endpoint}`);
     if (!endpoint) {
-      endpoint = localStorage.endpoint;
+      endpoint = localStorage.endpoint || "/";
     }
     if (localStorage.token && localStorage.token.length) {
       return self.query(endpoint);
@@ -393,7 +398,9 @@ ${window.location.pathname}`;
     }
     endpointInput.addEventListener('change', function() {
       console.log(this.value);
-      this.value = this.value.replace(/\/$/, '');
+      if (this.value !== "/") {
+        this.value = this.value.replace(/\/$/, '');
+      }
       localStorage.endpoint = this.value;
     });
 

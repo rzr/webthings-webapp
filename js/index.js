@@ -197,7 +197,7 @@
     const self = this;
     this.log(`request: ${endpoint}`);
     if (!endpoint) {
-      endpoint = localStorage.endpoint || "/";
+      endpoint = localStorage.endpoint;
     }
     if (localStorage.token && localStorage.token.length) {
       return self.query(endpoint);

@@ -144,7 +144,7 @@ viewer.createPropertyElement = function(model, name) {
     case 'string':
       if (semType === 'ColorProperty' || name === 'color') { // TODO
         el = document.createElement('a-entity');
-        el.setAttribute('ui-button', 'baseColor', '#BADC0D');
+        el.setAttribute('ui-button', 'size', '0.1');
         el.setAttribute('rotation', '90 0 0');
         el.setAttribute('scale', '.8 .8 .8');
       } else {

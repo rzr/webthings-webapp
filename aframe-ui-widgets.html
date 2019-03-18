@@ -9,9 +9,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <script src="https://aframe.io/releases/0.9.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/TizenTeam/aframe-ui-widgets@sandbox/rzr/master/dist/aframe-ui-widgets.min.js"></script>
-    <script src="https://rawgit.com/mayognaise/aframe-mouse-cursor-component/master/dist/aframe-mouse-cursor-component.min.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@^4.0.0/dist/aframe-event-set-component.min.js"></script>
     <script>var app = { viewer: {} }; </script>
     <script src="js/index.js"></script>
@@ -37,11 +36,11 @@ AFRAME.registerComponent('console', {
   </head>
   <body>
     <a-scene retain-camera  background="color: #000">
-      <a-entity root><a-entity>
-      <a-camera  mouse-cursor  wasd-controls>
+      <a-camera mouse-cursor wasd-controls cursor="rayOrigin: mouse">
         <a-cursor color="#FF6E4A"></a-cursor>
         <a-entity laser-controls="hand: right"></a-entity>
       </a-camera>
+      <a-entity root><a-entity>
       <a-text id="console" console
               position="0 -2 0"
               rotation="-90 0 0"

@@ -179,7 +179,7 @@
     if (!endpoint) {
       endpoint = localStorage.endpoint;
     }
-    
+
     this.get(endpoint, function(err, data) {
       if (err || !data) {
         console.error(err);
@@ -398,7 +398,7 @@ ${window.location.pathname}`;
     }
     endpointInput.addEventListener('change', function() {
       console.log(this.value);
-      if (this.value !== "/") {
+      if (this.value !== '/') {
         this.value = this.value.replace(/\/$/, '');
       }
       localStorage.endpoint = this.value;

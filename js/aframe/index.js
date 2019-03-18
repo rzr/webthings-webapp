@@ -20,12 +20,12 @@ viewer.log = !console.log || function(text) {
   console.log(text);
   let value = 0;
   if (this.log && app.debug) {
-    value = this.log.getAttribute('text', value).value || '';
+    value = this.console.getAttribute('text', value).value || '';
     if (value.length > 1024) {
       value = '(...)\n';
     }
     value = `${text}\n${value}`;
-    this.log.setAttribute('text', 'value', value);
+    this.console.setAttribute('text', 'value', value);
   }
 };
 
@@ -107,7 +107,7 @@ viewer.listenThing = function(thing, callback) {
   }
 };
 
-
+// TO relocate a-frame-io-widget.js ?
 viewer.createPropertyElement = function(model, name) {
   const self = this;
   const property = model.properties[name];
@@ -128,7 +128,8 @@ viewer.createPropertyElement = function(model, name) {
   switch (type) {
     case 'boolean':
       el = document.createElement('a-entity');
-      el.setAttribute('rotation', '90 0 0');
+    el.setAttribute('rotation', '90 0 0');
+          el.setAttribute('scale', '.8 .8 .8');
       el.setAttribute('ui-toggle', 'value', 0);
       break;
     case 'number':
@@ -142,26 +143,28 @@ viewer.createPropertyElement = function(model, name) {
       break;
     case 'string':
       if (semType === 'ColorProperty' || name === 'color') { // TODO
-        el = document.createElement('a-sphere');
-        el.setAttribute('color', '#FF0000');
-        el.setAttribute('radius', '0.1');
+        el = document.createElement('a-entity');
+        el.setAttribute('ui-button', 'baseColor', "#BADC0D");
+        el.setAttribute('rotation', '90 0 0');
+        el.setAttribute('scale', '.8 .8 .8');
       } else {
-        self.log(model);
-        el = document.createElement('a-box');
-        el.setAttribute('color', '#00FF00');
-        el.setAttribute('scale', '.1 .1 .1');
+        el = document.createElement('a-entity');
+        el.setAttribute('ui-rotary', 'value', 0);
+        el.setAttribute('rotation', '90 0 0');
+        el.setAttribute('scale', '.8 .8 .8');
       }
       break;
     default:
       self.log(`TODO: ${type}`);
-      el = document.createElement('a-octahedron');
-      el.setAttribute('color', '#FF0000');
+      el = document.createElement('a-box');
+      el.setAttribute('scale', '.2 .2 .2');
       el.setAttribute('radius', '0.1');
+      el.setAttribute('color', '#BADC0D');
   }
   el.setAttribute('position', '0 0.2 0');
   el.setAttribute('id', `widget-${id}`);
   el.addEventListener('change', function(e) {
-    if (e.detail) {
+    if (e.detail && !property.readOnly) {
       const payload = {};
       payload[name] = !!(e.detail.value !== 0);
       app.put(endpoint, payload, function(res, data) {
@@ -211,11 +214,13 @@ viewer.startUpdateProperty = function(model, name, view) {
           el.setAttribute('ui-slider', 'value', value);
           break;
 
-
-        case 'string':
-          view.setAttribute('text', 'value',
-                            `${view.getAttribute('text', 'value').value
-                            }\n${t}\n${data})`);
+      case 'string':
+        this.log(data);
+        if (semType === 'ColorProperty' || name === 'color') { // TODO
+          el.setAttribute('ui-button', 'color', value);
+        } else {
+          el.setAttribute('ui-rotary', 'value', value.length);
+        }
           break;
         default:
           self.log('TODO:');
@@ -230,12 +235,14 @@ viewer.updateThingView = function(err, data, model) {
   if (err) {
     throw err;
   }
-  self.log('updateThingView');
+  self.log('updateThingView: ' + data);
+  self.log(data);
   self.log(model);
   for (const name in data) {
-    self.log('updateThingView/prop/${name}');
     const type = model.properties[name].type;
+    const semType = model.properties[name]['@type'];
     const el = model.local[name].view.children[0];
+    self.log(`updateThingView/prop/${name}:${type}`);
     switch (type) { // TODO: mapping design pattern
       case 'boolean':
         el.setAttribute('ui-toggle', 'value', data[name] ? 1 : 0);
@@ -245,9 +252,14 @@ viewer.updateThingView = function(err, data, model) {
         self.log(`// TODO update in widget${data[name]}`);
         el.setAttribute('ui-slider', 'value', data[name]);
         break;
-      case 'string':
-        el.setAttribute(name, data[name]); // TODO
-        break;
+    case 'string':
+      if (semType === 'ColorProperty' || name === 'color') { // TODO
+        console.log('~~~ WIP' + data[name]);
+        el.setAttribute('ui-button', 'baseColor', data[name]);
+      } else {
+        el.setAttribute('ui-rotary', 'value', data[name].length);
+      }
+      break;
       default:
         self.log(`TODO: callback: ${name} : ${type}`);
     }

@@ -128,8 +128,8 @@ viewer.createPropertyElement = function(model, name) {
   switch (type) {
     case 'boolean':
       el = document.createElement('a-entity');
-    el.setAttribute('rotation', '90 0 0');
-          el.setAttribute('scale', '.8 .8 .8');
+      el.setAttribute('rotation', '90 0 0');
+      el.setAttribute('scale', '.8 .8 .8');
       el.setAttribute('ui-toggle', 'value', 0);
       break;
     case 'number':
@@ -144,7 +144,7 @@ viewer.createPropertyElement = function(model, name) {
     case 'string':
       if (semType === 'ColorProperty' || name === 'color') { // TODO
         el = document.createElement('a-entity');
-        el.setAttribute('ui-button', 'baseColor', "#BADC0D");
+        el.setAttribute('ui-button', 'baseColor', '#BADC0D');
         el.setAttribute('rotation', '90 0 0');
         el.setAttribute('scale', '.8 .8 .8');
       } else {
@@ -214,13 +214,13 @@ viewer.startUpdateProperty = function(model, name, view) {
           el.setAttribute('ui-slider', 'value', value);
           break;
 
-      case 'string':
-        this.log(data);
-        if (semType === 'ColorProperty' || name === 'color') { // TODO
-          el.setAttribute('ui-button', 'color', value);
-        } else {
-          el.setAttribute('ui-rotary', 'value', value.length);
-        }
+        case 'string':
+          this.log(data);
+          if (semType === 'ColorProperty' || name === 'color') { // TODO
+            el.setAttribute('ui-button', 'color', value);
+          } else {
+            el.setAttribute('ui-rotary', 'value', value.length);
+          }
           break;
         default:
           self.log('TODO:');
@@ -235,7 +235,7 @@ viewer.updateThingView = function(err, data, model) {
   if (err) {
     throw err;
   }
-  self.log('updateThingView: ' + data);
+  self.log(`updateThingView: ${data}`);
   self.log(data);
   self.log(model);
   for (const name in data) {
@@ -252,14 +252,14 @@ viewer.updateThingView = function(err, data, model) {
         self.log(`// TODO update in widget${data[name]}`);
         el.setAttribute('ui-slider', 'value', data[name]);
         break;
-    case 'string':
-      if (semType === 'ColorProperty' || name === 'color') { // TODO
-        console.log('~~~ WIP' + data[name]);
-        el.setAttribute('ui-button', 'baseColor', data[name]);
-      } else {
-        el.setAttribute('ui-rotary', 'value', data[name].length);
-      }
-      break;
+      case 'string':
+        if (semType === 'ColorProperty' || name === 'color') { // TODO
+          console.log(`~~~ WIP${data[name]}`);
+          el.setAttribute('ui-button', 'baseColor', data[name]);
+        } else {
+          el.setAttribute('ui-rotary', 'value', data[name].length);
+        }
+        break;
       default:
         self.log(`TODO: callback: ${name} : ${type}`);
     }

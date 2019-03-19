@@ -254,7 +254,6 @@ viewer.updateThingView = function(err, data, model) {
         break;
       case 'string':
         if (semType === 'ColorProperty' || name === 'color') { // TODO
-          console.log(`~~~ WIP${data[name]}`);
           el.setAttribute('ui-button', 'baseColor', data[name]);
         } else {
           el.setAttribute('ui-rotary', 'value', data[name].length);

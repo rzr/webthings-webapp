@@ -9,9 +9,12 @@
 
 (function() {
   // 'use strict';
+  app.auto = false;
   app.isLoading = true;
   app.localStorage = localStorage;
   app.loginUrl = 'login.html';
+  app.viewerUrl = '00index.html'; // TODO
+  app.viewerUrl = 'aframe-ui-widgets.html'; // TODO
   app.devel = function() {
     return Boolean(localStorage.devel || false);
   };
@@ -244,19 +247,17 @@
         return setTimeout(function() {
           const redirect_uri =
                 encodeURIComponent
-                (document.location.substring(0,
-                                             1 + document.location.lastIndexOf('/')));
-          const redirect_url = `\
+                (document.location.substring
+                (0,
+                 1 + document.location.lastIndexOf('/')));
+          const redirectUrl = `\
 ${localStorage.url}\
 ${authorize_endpoint}\
 &redirect_uri=${redirect_uri}
 `;
           localStorage.state = 'callback';
-          if (app.devel() && !confirm(`Redirect to: ${redirect_url}`)) {
-            return;
-          }
-          window.location = redirect_url;
-        }, 500);
+          this.redirect(redirectUrl);
+        }, 100);
       } else if (code && isCallback) {
         localStorage.state = 'token';
         const request_url = `${localStorage.url}/oauth/token`;
@@ -322,7 +323,7 @@ ${authorize_endpoint}\
   };
 
   window.htmlOnLoad = function() {
-    // Devel mode
+    console.log(`Devel mode:${localStorage.devel}`);
     const develCheckbox = document.getElementById('devel');
     if (develCheckbox) {
       if (localStorage.devel) {
@@ -332,6 +333,20 @@ ${authorize_endpoint}\
       }
       develCheckbox.addEventListener('change', function() {
         localStorage.devel = this.checked;
+      });
+    }
+
+    console.log(`Auto mode: ${localStorage.auto}`);
+    const autoCheckbox = document.getElementById('auto');
+    if (autoCheckbox) {
+      if (localStorage.auto) {
+        autoCheckbox.checked = localStorage.auto;
+      } else if (autoCheckbox.checked) {
+        localStorage.auto = autoCheckbox.checked;
+      }
+      autoCheckbox.addEventListener('change', function() {
+        localStorage.auto = this.checked;
+        console.log(localStorage.auto);
       });
     }
 
@@ -354,7 +369,7 @@ ${authorize_endpoint}\
 //\
 ${window.location.host}\
 ${window.location.pathname}`;
-      if (!app.devel() || confirm(`Relocate to ${loc}`)) {
+      if (localStorage.auto || !app.devel() || confirm(`Relocate to ${loc}`)) {
         window.history.replaceState({}, document.title, loc);
       }
     }
@@ -367,7 +382,7 @@ ${window.location.pathname}`;
     const clearButton = document.getElementById('clear');
     if (clearButton) {
       clearButton.addEventListener('click', function() {
-        document.getElementById('console').setAttribute('value', '');
+        document.getElementById('console').value = '';
       });
     }
 
@@ -423,7 +438,6 @@ ${window.location.pathname}`;
       localStorage.endpoint = endpointInput.getAttribute('value');
     }
     endpointInput.addEventListener('change', function() {
-      console.log(this.value);
       if (this.value !== '/') {
         this.value = this.value.replace(/\/$/, '');
       }
@@ -456,8 +470,20 @@ ${window.location.pathname}`;
       }
     }
 
+    app.redirect = function(location) {
+      console.log(`log: redirect: ${location}`);
+      if (localStorage.auto || confirm(`Redirect to: ${location}`)) {
+        setTimeout(function() {
+          window.location = location;
+        }, 500);
+      }
+    };
+
     // Autoconnect
     // TODO add settings page to disable (for debuging)
     app.main();
+    if (localStorage.token) {
+      app.redirect(app.viewerUrl);
+    }
   };
 })();

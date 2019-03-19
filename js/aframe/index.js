@@ -349,7 +349,7 @@ viewer.start = function() {
   this.log(`start: ${localStorage.url}`);
   if (!localStorage.url) {
     console.warn('Gateway token unset');
-    window.location = 'index.html';
+    window.location = app.loginUrl;
   } else {
     this.query();
   }

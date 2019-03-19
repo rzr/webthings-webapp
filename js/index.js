@@ -404,6 +404,8 @@ ${window.location.pathname}`;
     const tokenInput = document.getElementById('token');
     if (localStorage.token && localStorage.token.length) {
       tokenInput.setAttribute('value', localStorage.token);
+    } else if (tokenInput && tokenInput.value) {
+      localStorage.token = tokenInput.value;
     }
     tokenInput.addEventListener('change', function() {
       this.value = this.value.replace(/\/$/, '');

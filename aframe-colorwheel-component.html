@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="https://aframe.io/releases/0.6.1/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mokargas/aframe-colorwheel-component/dist/aframe-colorwheel-component.js"></script>
+    <script type="text/javascript">
+       AFRAME.registerComponent('color-listener', {
+         init: function(){
+           const that=this;
+           document.body.addEventListener('didchangecolor', function(evt){
+             that.el.setAttribute('color', evt.detail.hex);
+           })
+         }
+       })
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <a-entity laser-controls="hand: right"></a-entity>
+      <a-entity laser-controls="hand: left"></a-entity>
+      <a-entity>
+        <a-camera raycaster look-controls-enabled wasd-controls-enabled>
+          <a-entity cursor="rayOrigin: mouse"></a-entity>
+        </a-camera>
+      </a-entity>
+      <a-colorwheel position="-1.578 1 -2.5" rotation="0 21.601 0"></a-colorwheel>
+      <a-sky color="#6EBAA7" color-listener></a-sky>
+    </a-scene>
+  </body>
+</html>

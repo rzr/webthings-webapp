@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!--
+    Copyright 2018-present Samsung Electronics France SAS, and other contributors
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/
+  -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="theme-color" content="#317EFB"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="description" content="WebThings" />
+    <title>WebThings</title>
+    <link rel="icon" type="image/png" href="images/16x16/logo.png">
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script>var app = {}; </script>
+    <script src="js/index.js"></script>
+  </head>
+
+  <body
+    onload="window.htmlOnLoad();"
+    >
+    <div id="main" class="page">
+      <div class="contents">
+        <h1>WebThings</h1>
+
+        <p/>
+
+        <form name="form">
+          <input type="button" id="run" value="Connect" />
+          <input type="button" id="browse" value="Browse" />
+          <input type="button" id="reset" value="Reset" />
+          <input type="button" id="clear" value="Clear" />
+          <input type="button" id="about" value="About" />
+          <p/>
+          <input type="text" id="url"
+                 placeholder="http://gateway.local:8080"
+                 value="https://sosg.mozilla-iot.org"
+                 />
+          <br/>
+          <input type="password" id="token"
+                 placeholder="Token (to be pasted here)"
+                 value="eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjRlMGI1YmM4LTYyYjMtNDcwMC1iNjMwLTZhYzRiYTQ0ZDczNiJ9.eyJjbGllbnRfaWQiOiJsb2NhbC10b2tlbiIsInJvbGUiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZSI6Ii90aGluZ3M6cmVhZHdyaXRlIiwiaWF0IjoxNTUyMzM3MzYzLCJpc3MiOiJodHRwczovL3Nvc2cubW96aWxsYS1pb3Qub3JnIn0.YZATTdhudqaSFSKTZSH49EXjuHGIaVAj1SteK0ziyq6_CfAayPGRsMBHSwxFglzdLweqaKckJtuXg9oQla6Myg"
+                 />
+          <br/>
+          <input type="text" id="endpoint"
+                 placeholder="Endpoint: (/things)"
+                 value="/things"
+                 />
+          <br>
+         <p/>
+
+          Console:<br />
+          <textarea id="console" name="console"
+                    rows="8" cols="40">
+          </textarea>
+
+          <p>
+            Devel:<br/>
+          <input type="checkbox" id="devel" checked="true" />
+          </p>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

@@ -9,6 +9,7 @@
 
 const viewer = app.viewer;
 
+app.viewerUrl = 'aframe.html'; // TODO
 viewer.count = 0;
 
 viewer.rotation = [ 0, 0, 0];
@@ -149,7 +150,7 @@ viewer.createPropertyElement = function(model, name) {
         el.setAttribute('scale', '.8 .8 .8');
       } else {
         el = document.createElement('a-entity');
-        el.setAttribute('ui-rotary', 'value', 0);
+        el.setAttribute('ui-rotary', 'value', 0); // TODO: updateSchema
         el.setAttribute('rotation', '90 0 0');
         el.setAttribute('scale', '.8 .8 .8');
       }

@@ -11,6 +11,7 @@
   // 'use strict';
   app.isLoading = true;
   app.localStorage = localStorage;
+  app.loginUrl = 'login.html';
   app.devel = function() {
     return Boolean(localStorage.devel || false);
   };

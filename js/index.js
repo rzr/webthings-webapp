@@ -245,11 +245,8 @@
 
       if (!code && !isCallback) {
         return setTimeout(function() {
-          const redirect_uri =
-                encodeURIComponent
-                (document.location.substring
-                (0,
-                 1 + document.location.lastIndexOf('/')));
+          const redirect_uri = encodeURIComponent(document.location
+            .substring(0, 1 + document.location.lastIndexOf('/')));
           const redirectUrl = `\
 ${localStorage.url}\
 ${authorize_endpoint}\

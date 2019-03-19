@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!-- 
+     Copyright 2019-present Samsung Electronics France SAS, and other contributors
+     This Source Code Form is subject to the terms of the Mozilla Public
+     License, v. 2.0. If a copy of the MPL was not distributed with this
+     file, You can obtain one at http://mozilla.org/MPL/2.0/
+  -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://aframe.io/releases/0.9.0/aframe.min.js"></script>
+    <script>
+AFRAME.registerComponent('console', {
+  init: function () {
+var that = this;
+    this.log('log: init:' + navigator.userAgent);
+
+if (! false) for (var event of
+[
+'mousedown',
+'mouseup',
+'mouseenter',
+'mouseleave',
+'nousemove'
+]) {
+      this.log('listen: ' + event);
+      this.el.addEventListener(event, function (evt) {
+that.log("event: " + event + ": " +JSON.stringify(evt));
+that.log('x=' + evt.screenX);
+      }, true);
+
+
+}
+
+this.el.addEventListener('click', this.onClick.bind(this));
+this.el.addEventListener('mousemove', this.onMouseMove.bind(this));
+
+
+   setInterval(function(){that.log();}, 60*1000);
+   },
+
+onClick: function(e) {
+this.log('onClick');
+
+if (!this.selected) {
+this.log('drag');
+this.selected = true;
+} else {
+this.log('release: ' + e.screenX + ' ' + e.clientY);
+this.selected = false;
+}
+},
+
+onMouseMove: function(e) {
+this.log('move');
+this.log(e.clientX);
+this.log(JSON.stringify(e));
+
+},
+
+
+
+tick: function() {
+},
+
+log: function (text) {
+    if (!text) text = new Date();
+    text+="\n";
+    text+=this.el.getAttribute('value');
+    this.el.setAttribute('value', text.substring(0,1024));
+  },
+});
+AFRAME.registerComponent('myCursor', {
+  click: function() {
+     console.log("click");
+  }
+});
+
+</script>
+
+  </head>
+  <body>
+    <a-scene>
+
+      <a-camera>
+        <a-cursor color="#FF5555" myCursor></a-cursor>
+        <a-entity laser-controls="hand: left"></a-entity>
+      </a-camera>
+
+      <a-entity gearvr-controls="hand: right"></a-entity>
+      
+      <a-text id="console" console
+              value="console:"
+              position="0 0 -5"
+              color="#808080"
+              />
+      
+    </a-scene>
+  </body>
+</html>

@@ -14,12 +14,12 @@ viewer.count = 0;
 viewer.rotation = [ 0, 0, 0];
 
 viewer.log = !console.log || function(text) {
-  if (!app.debug) {
+  if (!app.devel()) {
     return;
   }
   console.log(text);
   let value = 0;
-  if (this.log && app.debug) {
+  if (this.log && app.devel()) {
     value = this.console.getAttribute('text', value).value || '';
     if (value.length > 1024) {
       value = '(...)\n';

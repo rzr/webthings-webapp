@@ -305,7 +305,7 @@ ${authorize_endpoint}\
       } else {
         // TODO: add GUI to overide default creds:
         localStorage.client_id = window.location.hostname;
-        localStorage.secret = window.location.hostname;
+        localStorage.secret = window.location.hostname; // TODO no html here
       }
     }
     try {

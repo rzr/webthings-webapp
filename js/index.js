@@ -242,10 +242,14 @@
 
       if (!code && !isCallback) {
         return setTimeout(function() {
+          const redirect_uri =
+                encodeURIComponent
+                (document.location.substring(0,
+                                             1 + document.location.lastIndexOf('/')));
           const redirect_url = `\
 ${localStorage.url}\
 ${authorize_endpoint}\
-&redirect_uri=${encodeURIComponent(document.location)}\
+&redirect_uri=${redirect_uri}
 `;
           localStorage.state = 'callback';
           if (app.devel() && !confirm(`Redirect to: ${redirect_url}`)) {

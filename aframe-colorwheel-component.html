@@ -1,22 +1,57 @@
 <!DOCTYPE html>
-<html>
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!-- 
+     Copyright 2019-present Samsung Electronics France SAS, and other contributors
+     This Source Code Form is subject to the terms of the Mozilla Public
+     License, v. 2.0. If a copy of the MPL was not distributed with this
+     file, You can obtain one at http://mozilla.org/MPL/2.0/
+  -->
+<html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <script src="https://unpkg.com/aframe@0.8.2/dist/aframe-master.js"></script>
     <script src="https://unpkg.com/aframe-colorwheel-component/dist/aframe-colorwheel-component.min.js"></script>
-    <script type="text/javascript">
-       AFRAME.registerComponent('color-listener', {
-         init: function(){
-           const that=this;
-           document.body.addEventListener('didchangecolor', function(evt){
-             that.el.setAttribute('color', evt.detail.hex);
-           })
-         }
-       })
+    <script>var app = { viewer: {} }; </script>
+    <script src="js/index.js"></script>
+    <script src="js/aframe/index.js"></script>
+
+    <script>
+AFRAME.registerComponent('root', {
+  init: function () {
+    app.viewer.root = this.el;
+    app.viewer.start();
+    }
+  }
+);
+
+AFRAME.registerComponent('console', {
+  init: function () {
+    app.viewer.console = this.el;
+    app.viewer.log(document.location);
+  }
+}
+);
+
+AFRAME.registerComponent('color-listener', {
+  init: function(){
+    const that=this;
+    document.body.addEventListener('didchangecolor', function(evt){
+      that.el.setAttribute('color', evt.detail.hex);
+    })
+  }
+});
     </script>
   </head>
   <body>
-    <a-scene>
+    <a-scene background="color: #ECECEC">
+      <a-entity root />
+      <a-text id="console" console
+              value="console:"
+              position="0 -2 0"
+              rotation="-90 0 0"
+              scale="4 4 4"
+              color="#808080"
+              />
       <a-entity laser-controls="hand: right"></a-entity>
       <a-entity laser-controls="hand: left"></a-entity>
       <a-entity>

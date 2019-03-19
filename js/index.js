@@ -18,6 +18,14 @@
   app.devel = function() {
     return Boolean(localStorage.devel || false);
   };
+
+  for (const key in localStorage) {
+    console.log(`overrideing: ${key}`); // TODO
+    if (app[key] !== undefined) {
+      app[key] = localStorage[key];
+    }
+  }
+
   app.log = function(arg) {
     if (!this.devel()) {
       return;
@@ -297,6 +305,7 @@ ${authorize_endpoint}\
     this.log(`main: endpoint: ${localStorage.endpoint}`);
     this.log(`main: ${localStorage.state}`);
     this.log(`main: ${window.location.hostname}`);
+
     // TODO: OAuth update ids here, URLs using file:// will copy from default
     if (!localStorage.client_id || !localStorage.secret) {
       if (!window.location.hostname) {
@@ -320,7 +329,19 @@ ${authorize_endpoint}\
   };
 
   window.htmlOnLoad = function() {
-    console.log(`Devel mode:${localStorage.devel}`);
+    let searchParams = null;
+    if (document.location.search) {
+      searchParams = (new URL(document.location)).searchParams;
+    }
+    console.log(`searchParams=${searchParams}`);
+
+    if (searchParams) {
+      for (const entry of searchParams.entries()) {
+        localStorage[entry[0]] = entry[1];
+      }
+    }
+
+    console.log(`log: Devel mode:${localStorage.devel}`);
     const develCheckbox = document.getElementById('devel');
     if (develCheckbox) {
       if (localStorage.devel) {

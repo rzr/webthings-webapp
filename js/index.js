@@ -202,6 +202,10 @@
     if (!token) {
       token = localStorage.token;
     }
+    if (!endpoint) {
+      endpoint = localStorage.endpoint;
+    }
+
     this.get(endpoint, function(err, data) {
       if (err || !data) {
         console.error(err);

@@ -189,14 +189,14 @@
 
   app.query = function(endpoint, token) {
     const self = this;
-    console.log(`query: ${endpoint}`);
+    this.log(`query: ${endpoint}`);
 
     if (!token) {
       token = localStorage.token;
     }
-    console.log(`query: ${url}`);
     this.get(endpoint, function(err, data) {
       if (err || !data) {
+        console.error(err);
         throw err;
       }
       const items = data && JSON.parse(data) || [];

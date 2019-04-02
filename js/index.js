@@ -134,7 +134,7 @@
           window.authCount = 99;
         } else {
           window.authCount++;
-          self.log(`wait: ${url}`); // TODO
+          self.log(`wait: ${url}`);
         }
       } catch (e) {
         window.authCount = 100;
@@ -153,7 +153,7 @@
 
   app.get = function(endpoint, callback) {
     const url = localStorage.url + endpoint;
-    this.log(`url: ${url}`); // TODO
+    this.log(`get: url: ${url}`);
     const token = localStorage.token;
     const request = new XMLHttpRequest();
     request.addEventListener('load', function() {

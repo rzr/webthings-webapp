@@ -38,6 +38,6 @@ rule/chromium: ${index}
 $<
 
 lint: index.html
-	webtidy --version || echo  apt-get install libhtml-tidy-perl
-	webtidy index.html > index.html.tmp
+	tidy --version || echo  apt-get install tidy
+	tidy -w 256 index.html > index.html.tmp
 	mv index.html.tmp index.html

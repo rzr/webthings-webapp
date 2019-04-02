@@ -37,3 +37,7 @@ rule/chromium: ${index}
 --user-data-dir="${tmpdir}/$@" \
 $<
 
+lint: index.html
+	webtidy --version || echo  apt-get install libhtml-tidy-perl
+	webtidy index.html > index.html.tmp
+	mv index.html.tmp index.html

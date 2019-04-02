@@ -33,10 +33,16 @@
     }
     const text = `log: ${arg}\n`;
     console.log(text);
-    if (document.form && document.form.console) {
-      document.form.console.value += text;
-      document.form.console.value.scrollTop =
-      document.form.console.value.scrollHeight;
+    const el = document.getElementById('console');
+    let value;
+    if (el) {
+      value = el.value || '';
+      if (value.length > 1024 * 1024) {
+        value = '(...)\n';
+      }
+      value += text;
+      el.value = value;
+      el.scrollTop = el.scrollHeight;
     }
   };
 

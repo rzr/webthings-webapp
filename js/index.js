@@ -69,11 +69,18 @@
     return token;
   };
 
-  app.browse = function(url, callback) {
+  app.browse = function(endpoint, callback) {
     const self = this;
     if (localStorage.token) {
       return;
     }
+    if (!localStorage.url) {
+      throw 'Error: ';
+    }
+    if (!endpoint) {
+      endpoint = localStorage.endpoint;
+    }
+    let url = localStorage.url + endpoint;
     this.log(`browse: ${url}`);
     const delay = 50;
     window.authCount = 0;
@@ -204,14 +211,14 @@
     if (localStorage.token && localStorage.token.length) {
       return self.query(endpoint);
     }
-    let url = localStorage.url;
-    url += '/oauth/authorize?';
-    url += `&client_id=${localStorage.client_id}`;
-    url += '&scope=';
-    url += '/things:readwrite';
-    url += '&response_type=code';
+    const authorize_endpoint = `\
+/oauth/authorize\
+?\
+&client_id=${localStorage.client_id}\
+&scope=/things:readwrite\
+&response_type=code`;
     if (!window.location.hostname) {
-      return this.browse(url, function(err, data) {
+      return this.browse(authorize_endpoint, function(err, data) {
         if (!err) {
           if (data) {
             window.form.token.value = data;

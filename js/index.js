@@ -300,7 +300,7 @@ app.main = function()
   }
 };
 
-window.htmlOnLoad = function() {
+app.onLoad = function() {
 
   var runButton = document.getElementById("run");
   runButton.addEventListener("click", function() {
@@ -378,3 +378,5 @@ window.htmlOnLoad = function() {
   // TODO add settings page to disable (for debuging)
   app.main();
 };
+
+window.onload = app.onLoad

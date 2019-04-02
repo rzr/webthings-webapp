@@ -12,13 +12,11 @@
   app.isLoading = true;
   app.datacontent = document.querySelector('.textarea');
   app.localStorage = localStorage;
-  app.devel = function() {
-    return Boolean(localStorage.devel || true);
-  };
+  app.devel = false;
 
   for (const key in localStorage) {
     if (app[key] !== undefined) {
-      if (app.devel()) {
+      if (app.devel) {
         console.log(`overriding: ${key}`);
       }
       app[key] = localStorage[key];
@@ -26,7 +24,7 @@
   }
 
   app.log = function(arg) {
-    if (!this.devel()) {
+    if (!this.devel) {
       return;
     }
     if (arg && arg.name && arg.message) {
@@ -81,7 +79,7 @@
         window.authCount = 98;
       }
     });
-    if (app.devel() && !confirm(`Opening: ${url}`)) {
+    if (app.devel && !confirm(`Opening: ${url}`)) {
       return;
     }
     window.authWin = window.open(url);

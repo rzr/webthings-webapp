@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Standalone application to browse \"Webthings\" connected to \"Mozilla IoT Gateway\"",
   "scripts": {
+    "start": "node node_modules/webthing-iotjs/example/single-thing.js",
     "test": "eslint ."
   },
   "repository": {
@@ -11,6 +12,9 @@
   },
   "author": "Philippe Coval <p.coval@samsung.com> (https://social.samsunginter.net/@rzr)",
   "license": "MPL-2.0",
+  "dependencies": {
+    "webthing-iotjs": "^0.11.0"
+  },
   "devDependencies": {
     "eslint": "^5.15.1",
     "eslint-plugin-html": "^5.0.3"

@@ -163,7 +163,9 @@
     });
     request.open('GET', url);
     request.setRequestHeader('Accept', 'application/json');
-    request.setRequestHeader('Authorization', `Bearer ${token}`);
+    if (token.length > 8) {
+      request.setRequestHeader('Authorization', `Bearer ${token}`);
+    }
     request.send();
   };
 

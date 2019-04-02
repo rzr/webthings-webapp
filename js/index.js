@@ -8,8 +8,7 @@
  */
 
 (function() {
-  const app = {};
-
+  app.auto = false;
   app.isLoading = true;
   app.datacontent = document.querySelector('.textarea');
   app.localStorage = localStorage;

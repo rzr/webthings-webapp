@@ -11,7 +11,10 @@
   app.auto = false;
   app.isLoading = true;
   app.localStorage = localStorage;
-  app.devel = false;
+  app.devel = !false;
+  app.loginUrl = 'login.html';
+  app.browseUrl = '00index.html'; // TODO
+  app.viewerUrl = 'log.html';
 
   for (const key in localStorage) {
     if (app[key] !== undefined) {
@@ -52,11 +55,15 @@
   // app.log = console.log;
 
   app.redirect = function(location) {
-    this.log(`log: redirect: ${location}`);
+    this.log(`redirect: from ${window.location.href} to ${location}`);
+
+    if (window.location.href === location) {
+      return;
+    }
     if (localStorage.auto || confirm(`Redirect to: ${location}`)) {
       setTimeout(function() {
         window.location = location;
-      }, 500);
+      }, 1000);
     }
   };
 
@@ -221,7 +228,7 @@
 
   app.request = function(endpoint) {
     const self = this;
-    this.log(`request: ${endpoint}`);
+    this.log(`request: ${endpoint} ${localStorage.state}`);
     if (!endpoint) {
       endpoint = localStorage.endpoint;
     }
@@ -247,7 +254,7 @@
     }
     const url = new URL(document.location);
     if (!url) {
-      throw 'Null';
+      return alert('Please set a valid URL (e.g: http://gateway.local)');
     }
     const isCallback = (localStorage.state === 'callback');
     let code = null;
@@ -257,20 +264,21 @@
     } catch (err) {
       this.log(`TODO: err: ${err}`);
     }
+    this.log(isCallback);
 
     if (!code && !isCallback) {
       return setTimeout(function() {
-        const redirect_uri = encodeURIComponent(document.location
-          .substring(0, 1 + document.location.lastIndexOf('/')));
+        const redirect_uri = encodeURIComponent(window.location.href
+          .substring(0, 1 + window.location.href.lastIndexOf('/')));
         const redirectUrl = `\
 ${localStorage.url}\
 ${authorize_endpoint}\
 &redirect_uri=${redirect_uri}
 `;
         localStorage.state = 'callback';
-        this.redirect(redirectUrl);
-      }, 100);
-    } else if (code && isCallback) {
+        self.redirect(redirectUrl);
+      }, 1000);
+    } else if (code) {
       localStorage.state = 'token';
       const request_url = `${localStorage.url}/oauth/token`;
       const params = {
@@ -314,9 +322,9 @@ ${authorize_endpoint}\
         localStorage.client_id = 'local-token';
         localStorage.secret = 'super secret';
       } else {
-      // TODO: add GUI to overide default creds:
+        // TODO: add GUI to overide default creds:
         localStorage.client_id = window.location.hostname;
-        localStorage.secret = window.location.hostname;
+        localStorage.secret = window.location.hostname; // TODO no html here
       }
     }
     if (!localStorage.url) {
@@ -335,8 +343,20 @@ ${authorize_endpoint}\
     }
   };
 
-  app.onLoad = function() {
+  app.onload = function() {
     const self = this;
+
+    let searchParams = null;
+    if (document.location.search) {
+      searchParams = (new URL(document.location)).searchParams;
+    }
+    console.log(`searchParams=${searchParams}`);
+
+    if (searchParams) {
+      for (const entry of searchParams.entries()) {
+        localStorage[entry[0]] = entry[1];
+      }
+    }
 
     console.log(`log: Devel mode: ${localStorage.devel}`);
     const develCheckbox = document.getElementById('devel');
@@ -349,10 +369,50 @@ ${authorize_endpoint}\
       }
     }
 
+    console.log(`Auto mode: ${localStorage.auto}`);
+    const autoCheckbox = document.getElementById('auto');
+    if (autoCheckbox) {
+      if (localStorage.auto) {
+        autoCheckbox.checked = localStorage.auto;
+      } else if (autoCheckbox.checked) {
+        localStorage.auto = autoCheckbox.checked;
+      }
+      autoCheckbox.addEventListener('change', function() {
+        localStorage.auto = this.checked;
+        console.log(localStorage.auto);
+      });
+    }
+
+    // hack to pass token from CLI
+    let hash = window.location.hash;
+    if (hash) {
+      try {
+        hash = hash.substring(1, hash.length);
+        const url = `http://0.0.0.0/${hash}`;
+        const params = new URL(url).searchParams;
+        for (const entry of params.entries()) {
+          if (entry[0] && entry[1]) {
+            localStorage[entry[0]] = entry[1];
+          }
+        }
+      } catch (e) {
+        console.log(e);
+      }
+      const loc = `${window.location.protocol}\
+//\
+${window.location.host}\
+${window.location.pathname}`;
+      if (localStorage.auto || !app.devel || confirm(`Relocate to ${loc}`)) {
+        window.history.replaceState({}, document.title, loc);
+      }
+    }
+
     const runButton = document.getElementById('run');
-    runButton.addEventListener('click', function() {
-      app.main();
-    });
+    if (runButton) {
+      runButton.addEventListener('click', function() {
+        app.main();
+      });
+    }
 
     const clearButton = document.getElementById('clear');
     if (clearButton) {
@@ -362,24 +422,30 @@ ${authorize_endpoint}\
     }
 
     const resetButton = document.getElementById('reset');
-    resetButton.addEventListener('click', function() {
-      document.getElementById('console').setAttribute('value', '');
-      document.getElementById('url').setAttribute('value', '');
-      document.getElementById('token').setAttribute('value', '');
-      document.getElementById('endpoint').setAttribute('value', '/things');
-      localStorage.clear();
-      app.log('token forgotten (need auth again)');
-    });
+    if (resetButton) {
+      resetButton.addEventListener('click', function() {
+        document.getElementById('console').setAttribute('value', '');
+        document.getElementById('url').setAttribute('value', '');
+        document.getElementById('token').setAttribute('value', '');
+        document.getElementById('endpoint').setAttribute('value', '/things');
+        localStorage.clear();
+        app.log('token forgotten (need auth again)');
+      });
+    }
 
     const aboutButton = document.getElementById('about');
-    aboutButton.addEventListener('click', function() {
-      window.open('README.md');
-    });
+    if (aboutButton) {
+      aboutButton.addEventListener('click', function() {
+        window.open('README.md');
+      });
+    }
 
     const browseButton = document.getElementById('browse');
-    browseButton.addEventListener('click', function() {
-      window.location.href = '00index.html';
-    });
+    if (browseButton) {
+      browseButton.addEventListener('click', function() {
+        window.location.href = (app.devel) ? app.browseUrl : app.viewerUrl;
+      });
+    }
 
     const urlInput = document.getElementById('url');
     if (urlInput) {
@@ -437,7 +503,8 @@ ${authorize_endpoint}\
     // Autoconnect
     // TODO add settings page to disable (for debuging)
     app.main();
+    if (localStorage.token && app.auto) {
+      app.redirect(app.viewerUrl);
+    }
   };
-
-  window.onload = app.onLoad;
 })();

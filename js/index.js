@@ -275,9 +275,8 @@ return self.query(endpoint);
 
 app.main = function()
 {
-  this.log("main: endpoint: " + localStorage["endpoint"]);
-  this.log("main: " + localStorage["state"]);
-  this.log("main: " + window.location.hostname);
+  this.log(`main: state: ${localStorage["state"]}`);
+  this.log(`main: hostname: ${window.location.hostname}`);
   // TODO: OAuth update ids here, URLs using file:// will copy from default
   if (!localStorage["client_id"] || !localStorage["secret"] ) {
     if (!window.location.hostname) {
@@ -289,6 +288,11 @@ app.main = function()
       localStorage["secret"] = window.location.hostname;
     }
   }
+  if (!localStorage["url"]) {
+    this.log("main: URL unset");
+    return;
+  }
+
   try {
     if (!localStorage["token"]) {
       app.request(localStorage["url"]);

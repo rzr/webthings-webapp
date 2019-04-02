@@ -16,11 +16,14 @@
 
   for (const key in localStorage) {
     if (app[key] !== undefined) {
-      if (app.devel) {
-        console.log(`overriding: ${key}`);
-      }
       app[key] = localStorage[key];
     }
+  }
+  if (typeof app.devel === 'string') {
+    app.devel = JSON.parse(app.devel);
+  }
+  if (typeof app.auto === 'string') {
+    app.auto = JSON.parse(app.auto);
   }
 
   app.log = function(arg) {
@@ -336,17 +339,15 @@
   app.onLoad = function() {
     const self = this;
 
-    console.log(`log: Devel mode:${localStorage.devel}`);
+    console.log(`log: Devel mode: ${localStorage.devel}`);
     const develCheckbox = document.getElementById('devel');
     if (develCheckbox) {
-      if (localStorage.devel) {
-        develCheckbox.checked = localStorage.devel;
-      } else if (develCheckbox.checked) {
-        localStorage.devel = develCheckbox.checked;
-      }
       develCheckbox.addEventListener('change', function() {
-        localStorage.devel = this.checked;
+        app.devel = localStorage.devel = Boolean(this.checked);
       });
+      if (typeof localStorage.devel !== undefined) {
+        develCheckbox.checked = app.devel;
+      }
     }
 
     const runButton = document.getElementById('run');
@@ -382,41 +383,47 @@
     });
 
     const urlInput = document.getElementById('url');
-    if (localStorage.url && localStorage.url.length) {
-      urlInput.setAttribute('value', localStorage.url);
-    } else if (urlInput.value && urlInput.value.length) {
-      localStorage.url = urlInput.value;
-    } else {
-      urlInput.setAttribute('value', 'http://gateway.local:8080');
+    if (urlInput) {
+      urlInput.addEventListener('change', function() {
+        this.value = this.value.replace(/\/$/, '');
+        localStorage.url = this.value;
+      });
+      if (localStorage.url && localStorage.url.length) {
+        urlInput.setAttribute('value', localStorage.url);
+      } else if (urlInput.value && urlInput.value.length) {
+        localStorage.url = urlInput.value;
+      } else {
+        urlInput.setAttribute('value', 'http://gateway.local:8080');
+        localStorage.url = urlInput.value;
+      }
     }
-    urlInput.addEventListener('change', function() {
-      this.value = this.value.replace(/\/$/, '');
-      localStorage.url = this.value;
-    });
 
     const tokenInput = document.getElementById('token');
-    if (localStorage.token && localStorage.token.length) {
-      tokenInput.setAttribute('value', localStorage.token);
-    } else if (tokenInput && tokenInput.value) {
-      localStorage.token = tokenInput.value;
+    if (tokenInput) {
+      tokenInput.addEventListener('change', function() {
+        this.value = this.value.replace(/\/$/, '');
+        localStorage.token = this.value;
+      });
+      if (localStorage.token && localStorage.token.length) {
+        tokenInput.setAttribute('value', localStorage.token);
+      } else if (tokenInput && tokenInput.value) {
+        localStorage.token = tokenInput.value;
+      }
     }
-    tokenInput.addEventListener('change', function() {
-      this.value = this.value.replace(/\/$/, '');
-      localStorage.token = this.value;
-    });
 
     const endpointInput = document.getElementById('endpoint');
-    if (localStorage.endpoint) {
-      endpoint.setAttribute('value', localStorage.endpoint);
-    } else if (endpointInput.getAttribute('value')) {
-      localStorage.endpoint = endpointInput.getAttribute('value');
+    if (endpointInput) {
+      endpointInput.addEventListener('change', function() {
+        console.log(this.value);
+        this.value = this.value.replace(/\/$/, '');
+        localStorage.endpoint = this.value;
+      });
+      if (localStorage.endpoint) {
+        endpoint.setAttribute('value', localStorage.endpoint);
+      } else if (endpointInput.getAttribute('value')) {
+        localStorage.endpoint = endpointInput.getAttribute('value');
+      }
     }
-    endpointInput.addEventListener('change', function() {
-      console.log(this.value);
-      this.value = this.value.replace(/\/$/, '');
-      localStorage.endpoint = this.value;
-    });
-
     // add eventListener for tizenhwkey
     document.addEventListener('tizenhwkey', function(e) {
       if (e.keyName === 'back' && tizen && tizen.application) {

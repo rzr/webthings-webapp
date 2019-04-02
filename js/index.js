@@ -296,7 +296,7 @@
 
     try {
       if (!localStorage.token) {
-        app.request(localStorage.url);
+        app.request(localStorage.endpoint);
       } else {
         app.query(localStorage.endpoint);
       }

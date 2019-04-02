@@ -233,78 +233,57 @@
         self.log(`error: browsing: ${err}`);
       });
     }
+    let url = new URL(document.location);
+    if (!url) {
+      throw 'Null';
+    }
     const isCallback = (localStorage.state === 'callback');
     let code = null;
-    const wurl = new URL(document.location);
-    this.log(`isCallback: ${isCallback}`);
+    try {
+      code = url.searchParams.get('code');
+      this.log(`code: should not be null: ${code}`);
+    } catch (err) {
+      this.log(`TODO: err: ${err}`);
+    }
 
-    if (wurl) { // TODO: refactor
-      try {
-        this.log(`TODO: URL.document.searchParams: ${document.URL.searchParams}`);
-        this.log(`TODO: URL.window.searchParams: ${window.URL.searchParams}`);
-        this.log(`TODO: location: ${window.location}`);
-        this.log(`TODO: check: ${wurl.search}`);
-        wurl.search.replace(/^%3F/, '?');
-        this.log(`TODO: workaround: ${wurl.search}`);
-        const searchParams = new URLSearchParams(wurl.search);
-        this.log(`TODO: searchParms: ${searchParams}`);
-        code = searchParams.get('code');
-        this.log(`TODO: code: ${code}`);
-      } catch (err) {
-        this.log(`TODO: err: ${err}`);
-        this.log(err);
-      }
-      if (!code && wurl.search) {
-        this.log(`TODO: workaround: search: ${wurl.search}`);
-        try {
-          code = wurl.search.substring(
-            wurl.search.indexOf('code=') + 'code='.length,
-            wurl.search.indexOf('&')
-          );
-        } catch (err) {
-          code = null;
-        }
-      }
-
-      if (!code && !isCallback) {
-        return setTimeout(function() {
-          url += `&redirect_uri=${encodeURIComponent(document.location)}`;
-          localStorage.state = 'callback';
-          window.location = url;
-        }, 500);
-      } else if (code && isCallback) {
-        localStorage.state = 'token';
-        const request_url = `${localStorage.url}/oauth/token`;
-        const params = {
-          code: code,
-          grant_type: 'authorization_code',
-          client_id: localStorage.client_id,
-        };
-        const request = new XMLHttpRequest();
-        request.onreadystatechange = function() {
-          if (request.readyState == 4 && request.status == 200) {
-            localStorage.token = JSON.parse(request.responseText).access_token;
-            document.getElementById('token').setAttribute('value',
-                                                          localStorage.token);
-            const pos = window.location.href.indexOf('?');
-            if (pos) {
-              const loc = window.location.href.substring(0, pos);
-              window.history.replaceState({}, document.title, loc);
-            }
-            self.query(endpoint);
+    if (!code && !isCallback) {
+      return setTimeout(function() {
+        url += `&redirect_uri=${encodeURIComponent(document.location)}`;
+        localStorage.state = 'callback';
+        window.location = url;
+      }, 500);
+    } else if (code && isCallback) {
+      localStorage.state = 'token';
+      const request_url = `${localStorage.url}/oauth/token`;
+      const params = {
+        code: code,
+        grant_type: 'authorization_code',
+        client_id: localStorage.client_id,
+      };
+      const request = new XMLHttpRequest();
+      request.onreadystatechange = function() {
+        if (request.readyState == 4 && request.status == 200) {
+          localStorage.token = JSON.parse(request.responseText).access_token;
+          document.getElementById('token').setAttribute('value',
+                                                        localStorage.token);
+          const pos = window.location.href.indexOf('?');
+          if (pos) {
+            const loc = window.location.href.substring(0, pos);
+            window.history.replaceState({}, document.title, loc);
           }
-        };
-        this.log(`grant: ${request_url}`);
-        request.open('POST', request_url, true);
-        request.setRequestHeader('Content-type', 'application/json');
-        request.setRequestHeader('Accept', 'application/json');
-        request.setRequestHeader('Authorization', `Basic ${
-          window.btoa(`${localStorage.client_id
-          }:${localStorage.secret}`)}`);
-        request.send(JSON.stringify(params));
-      } else {
-        localStorage.state = 'disconnected';
-      }
+          self.query(endpoint);
+        }
+      };
+      this.log(`grant: ${request_url}`);
+      request.open('POST', request_url, true);
+      request.setRequestHeader('Content-type', 'application/json');
+      request.setRequestHeader('Accept', 'application/json');
+      request.setRequestHeader('Authorization', `Basic ${
+        window.btoa(`${localStorage.client_id
+        }:${localStorage.secret}`)}`);
+      request.send(JSON.stringify(params));
+    } else {
+      localStorage.state = 'disconnected';
     }
   };
 

@@ -13,7 +13,13 @@
   app.isLoading = true;
   app.datacontent = document.querySelector('.textarea');
   app.localStorage = localStorage;
+  app.devel = function() {
+    return Boolean(localStorage.devel || true);
+  };
   app.log = function(arg) {
+    if (!this.devel()) {
+      return;
+    }
     if (arg && arg.name && arg.message) {
       const err = arg;
       this.log(`exception [${err.name}] msg[${err.message}]`);
@@ -66,7 +72,9 @@
         window.authCount = 98;
       }
     });
-    this.log(`Opening: ${url}`);
+    if (app.devel() && !confirm(`Opening: ${url}`)) {
+      return;
+    }
     window.authWin = window.open(url);
     if (!window.authWin) {
       throw `Can't open window: ${url}`;
@@ -307,6 +315,20 @@
 
   app.onLoad = function() {
     const self = this;
+
+    console.log(`log: Devel mode:${localStorage.devel}`);
+    const develCheckbox = document.getElementById('devel');
+    if (develCheckbox) {
+      if (localStorage.devel) {
+        develCheckbox.checked = localStorage.devel;
+      } else if (develCheckbox.checked) {
+        localStorage.devel = develCheckbox.checked;
+      }
+      develCheckbox.addEventListener('change', function() {
+        localStorage.devel = this.checked;
+      });
+    }
+
     const runButton = document.getElementById('run');
     runButton.addEventListener('click', function() {
       app.main();

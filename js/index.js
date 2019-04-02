@@ -51,6 +51,15 @@
   // TODO enable this if you want to use brower log only for debuging
   // app.log = console.log;
 
+  app.redirect = function(location) {
+    this.log(`log: redirect: ${location}`);
+    if (localStorage.auto || confirm(`Redirect to: ${location}`)) {
+      setTimeout(function() {
+        window.location = location;
+      }, 500);
+    }
+  };
+
   app.handleDocument = function(document) {
     let token = null;
     this.log(`parse: ${document}`);
@@ -232,7 +241,7 @@
         self.log(`error: browsing: ${err}`);
       });
     }
-    let url = new URL(document.location);
+    const url = new URL(document.location);
     if (!url) {
       throw 'Null';
     }
@@ -247,10 +256,16 @@
 
     if (!code && !isCallback) {
       return setTimeout(function() {
-        url += `&redirect_uri=${encodeURIComponent(document.location)}`;
+        const redirect_uri = encodeURIComponent(document.location
+          .substring(0, 1 + document.location.lastIndexOf('/')));
+        const redirectUrl = `\
+${localStorage.url}\
+${authorize_endpoint}\
+&redirect_uri=${redirect_uri}
+`;
         localStorage.state = 'callback';
-        window.location = url;
-      }, 500);
+        this.redirect(redirectUrl);
+      }, 100);
     } else if (code && isCallback) {
       localStorage.state = 'token';
       const request_url = `${localStorage.url}/oauth/token`;

@@ -15,6 +15,16 @@
   app.devel = function() {
     return Boolean(localStorage.devel || true);
   };
+
+  for (const key in localStorage) {
+    if (app[key] !== undefined) {
+      if (app.devel()) {
+        console.log(`overriding: ${key}`);
+      }
+      app[key] = localStorage[key];
+    }
+  }
+
   app.log = function(arg) {
     if (!this.devel()) {
       return;

@@ -329,9 +329,16 @@ ${authorize_endpoint}\
     }
     if (!localStorage.url) {
       this.log('main: URL unset');
-      return;
+      if (confirm('Url is unset, set to default ? eg: http://gateway.local:8080')) {
+        localStorage.url = 'http://gateway.local:8080';
+        const urlInput = document.getElementById('url');
+        if (urlInput) {
+          urlInput.setAttribute('value', localStorage.url);
+        } else {
+          return;
+        }
+      }
     }
-
     try {
       if (!localStorage.token) {
         app.request(localStorage.endpoint);
@@ -456,9 +463,6 @@ ${window.location.pathname}`;
       if (localStorage.url && localStorage.url.length) {
         urlInput.setAttribute('value', localStorage.url);
       } else if (urlInput.value && urlInput.value.length) {
-        localStorage.url = urlInput.value;
-      } else {
-        urlInput.setAttribute('value', 'http://gateway.local:8080');
         localStorage.url = urlInput.value;
       }
     }

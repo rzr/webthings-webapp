@@ -140,7 +140,7 @@
       try {
         self.log(`accessing a cross-origin frame: ${window.authWin.location}`);
         url = (window.authWin && window.authWin.location &&
-             window.authWin.location.href) ?
+               window.authWin.location.href) ?
           window.authWin.location.href :
           undefined;
         self.log(`auth: url: ${url}`);
@@ -268,8 +268,8 @@
 
     if (!code && !isCallback) {
       return setTimeout(function() {
-        const redirect_uri = encodeURIComponent(window.location.href
-          .substring(0, 1 + window.location.href.lastIndexOf('/')));
+        const redirect_uri = encodeURIComponent(window.location.href.substring(
+          0, 1 + window.location.href.lastIndexOf('/')));
         const redirectUrl = `\
 ${localStorage.url}\
 ${authorize_endpoint}\
@@ -304,92 +304,90 @@ ${authorize_endpoint}\
       request.open('POST', request_url, true);
       request.setRequestHeader('Content-type', 'application/json');
       request.setRequestHeader('Accept', 'application/json');
-      request.setRequestHeader('Authorization', `Basic ${
-        window.btoa(`${localStorage.client_id
-        }:${localStorage.secret}`)}`);
+      request.setRequestHeader('Authorization',
+                               `Basic ${window.btoa(`${localStorage.client_id}:${localStorage.secret}`)}`);
       request.send(JSON.stringify(params));
     } else {
       localStorage.state = 'disconnected';
     }
   };
-  
-app.poll = function(thing, callback) {
-  const self = this;
-  const url = `${localStorage.url + thing.href}/properties`;
-  self.log(`fetch: ${url}`);
-  fetch(url,
-        {headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.token}`,
-        }}
-  )
-    .then(function(response) {
+
+  app.poll = function(thing, callback) {
+    const self = this;
+    const url = `${localStorage.url + thing.href}/properties`;
+    self.log(`fetch: ${url}`);
+    fetch(url,
+          {headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.token}`,
+          }}
+    ).then(function(response) {
       self.log(`recieved:`);
       return response.json();
     })
-    .then(function(json) {
-      self.log(`parsed: ${json}`);
-      self.log(json);
-      if (callback) {
-        callback((json === null), json);
-      }
-    });
-};
-
-// TODO relocate
-app.startPoll = function(thing, callback, delay) {
-  const self = this;
-  if (!delay) {
-    delay = 1000;
-  }
-  interval = setInterval(function() {
-    if (app.pause) {
-      self.log(`stopping: ${app.pause}`);
-      inverval = clearInterval(interval);
-    }
-    self.poll(thing, callback);
-  }, delay);
-};
-
-
-// TODO relocate
-app.listenThing = function(thing, callback) {
-  const self = this;
-  const useWebsockets = true;
-  let wsUrl = thing.links[thing.links.length - 1].href;
-  wsUrl += `?jwt=${localStorage.token}`;
-  let ws = null;
-  // console.log(wsUrl);
-  if (useWebsockets) {
-    ws = new WebSocket(wsUrl);
-    ws.onclose = function(evt) {
-      self.log(wsUrl);
-      self.log(evt);
-      // CLOSE_ABNORMAL
-      if (evt.code === 1006) {
-        self.startPoll(thing, callback);
-      }
-    };
-    ws.onmessage = function(evt) {
-      if (app.pause) {
-        ws.close();
-      }
-      if (callback) {
-        let data = null;
-        try {
-          data = JSON.parse(evt.data).data;
-        } catch (e) {
-          self.log(`error: ${e}`);
+      .then(function(json) {
+        self.log(`parsed: ${json}`);
+        self.log(json);
+        if (callback) {
+          callback((json === null), json);
         }
-        callback((data == null), data);
+      });
+  };
+
+  // TODO relocate
+  app.startPoll = function(thing, callback, delay) {
+    const self = this;
+    if (!delay) {
+      delay = 1000;
+    }
+    interval = setInterval(function() {
+      if (app.pause) {
+        self.log(`stopping: ${app.pause}`);
+        inverval = clearInterval(interval);
       }
-    };
-  } else {
-    self.startPoll(thing, callback);
-  }
-};
-  
+      self.poll(thing, callback);
+    }, delay);
+  };
+
+
+  // TODO relocate
+  app.listenThing = function(thing, callback) {
+    const self = this;
+    const useWebsockets = true;
+    let wsUrl = thing.links[thing.links.length - 1].href;
+    wsUrl += `?jwt=${localStorage.token}`;
+    let ws = null;
+    // console.log(wsUrl);
+    if (useWebsockets) {
+      ws = new WebSocket(wsUrl);
+      ws.onclose = function(evt) {
+        self.log(wsUrl);
+        self.log(evt);
+        // CLOSE_ABNORMAL
+        if (evt.code === 1006) {
+          self.startPoll(thing, callback);
+        }
+      };
+      ws.onmessage = function(evt) {
+        if (app.pause) {
+          ws.close();
+        }
+        if (callback) {
+          let data = null;
+          try {
+            data = JSON.parse(evt.data).data;
+          } catch (e) {
+            self.log(`error: ${e}`);
+          }
+          callback((data == null), data);
+        }
+      };
+    } else {
+      self.startPoll(thing, callback);
+    }
+  };
+
   app.main = function() {
     this.log(`main: state: ${localStorage.state}`);
     this.log(`main: hostname: ${window.location.hostname}`);
@@ -406,7 +404,8 @@ app.listenThing = function(thing, callback) {
     }
     if (!localStorage.url) {
       this.log('main: URL unset');
-      if (confirm('Url is unset, set to default ? eg: http://gateway.local:8080')) {
+      if (confirm('Url is unset,\
+set to default ? eg: http://gateway.local:8080')) {
         localStorage.url = 'http://gateway.local:8080';
         const urlInput = document.getElementById('url');
         if (urlInput) {

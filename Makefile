@@ -37,7 +37,14 @@ rule/chromium: ${index}
 --user-data-dir="${tmpdir}/$@" \
 $<
 
-lint: index.html
+html/lint: index.html
 	tidy --version || echo  apt-get install tidy
 	tidy -w 256 index.html > index.html.tmp
 	mv index.html.tmp index.html
+
+node_modules: package.json
+	npm install --only=dev
+
+lint: node_modules
+	@npm run lint || echo "TODO: Fix sources"
+	npm run lint

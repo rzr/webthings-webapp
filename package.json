@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Standalone application to browse \"Webthings\" connected to \"Mozilla IoT Gateway\"",
   "scripts": {
+    "lint": "eslint --fix .",
     "start": "node node_modules/webthing-iotjs/example/single-thing.js",
     "test": "eslint ."
   },

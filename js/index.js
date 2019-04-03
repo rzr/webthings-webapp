@@ -312,7 +312,84 @@ ${authorize_endpoint}\
       localStorage.state = 'disconnected';
     }
   };
+  
+app.poll = function(thing, callback) {
+  const self = this;
+  const url = `${localStorage.url + thing.href}/properties`;
+  self.log(`fetch: ${url}`);
+  fetch(url,
+        {headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.token}`,
+        }}
+  )
+    .then(function(response) {
+      self.log(`recieved:`);
+      return response.json();
+    })
+    .then(function(json) {
+      self.log(`parsed: ${json}`);
+      self.log(json);
+      if (callback) {
+        callback((json === null), json);
+      }
+    });
+};
 
+// TODO relocate
+app.startPoll = function(thing, callback, delay) {
+  const self = this;
+  if (!delay) {
+    delay = 1000;
+  }
+  interval = setInterval(function() {
+    if (app.pause) {
+      self.log(`stopping: ${app.pause}`);
+      inverval = clearInterval(interval);
+    }
+    self.poll(thing, callback);
+  }, delay);
+};
+
+
+// TODO relocate
+app.listenThing = function(thing, callback) {
+  const self = this;
+  const useWebsockets = true;
+  let wsUrl = thing.links[thing.links.length - 1].href;
+  wsUrl += `?jwt=${localStorage.token}`;
+  let ws = null;
+  // console.log(wsUrl);
+  if (useWebsockets) {
+    ws = new WebSocket(wsUrl);
+    ws.onclose = function(evt) {
+      self.log(wsUrl);
+      self.log(evt);
+      // CLOSE_ABNORMAL
+      if (evt.code === 1006) {
+        self.startPoll(thing, callback);
+      }
+    };
+    ws.onmessage = function(evt) {
+      if (app.pause) {
+        ws.close();
+      }
+      if (callback) {
+        let data = null;
+        try {
+          data = JSON.parse(evt.data).data;
+        } catch (e) {
+          self.log(`error: ${e}`);
+        }
+        callback((data == null), data);
+      }
+    };
+  } else {
+    self.startPoll(thing, callback);
+  }
+};
+  
   app.main = function() {
     this.log(`main: state: ${localStorage.state}`);
     this.log(`main: hostname: ${window.location.hostname}`);

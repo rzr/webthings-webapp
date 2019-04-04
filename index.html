@@ -18,10 +18,15 @@
 <script>
 const app = {};
 console.log(app);
+window.onload = function() {
+  if (localStorage.token && app.auto && app.redirect) {
+    app.redirect(app.viewerUrl);
+  }
+}
 </script>
 <script src="js/index.js"></script>
 </head>
-<body onload="app.onload()">
+<body onload="app.start && app.start();">
 <div id="main" class="page">
 <div class="contents">
 <h1>WebThings</h1>

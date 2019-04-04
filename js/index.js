@@ -580,11 +580,6 @@ ${window.location.pathname}`;
       }
     });
 
-    // Autoconnect
-    // TODO add settings page to disable (for debuging)
     app.main();
-    if (localStorage.token && app.auto) {
-      app.redirect(app.viewerUrl);
-    }
   };
 })();

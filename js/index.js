@@ -388,9 +388,9 @@ ${authorize_endpoint}\
     }
   };
 
-  app.main = function() {
-    this.log(`main: state: ${localStorage.state}`);
-    this.log(`main: hostname: ${window.location.hostname}`);
+  app.connect = function() {
+    this.log(`connect: state: ${localStorage.state}`);
+    this.log(`connect: hostname: ${window.location.hostname}`);
     // TODO: OAuth update ids here, URLs using file:// will copy from default
     if (!localStorage.client_id || !localStorage.secret) {
       if (!window.location.hostname) {
@@ -403,7 +403,7 @@ ${authorize_endpoint}\
       }
     }
     if (!localStorage.url) {
-      this.log('main: URL unset');
+      this.log('connect: URL unset');
       if (confirm('Url is unset,\
 set to default ? eg: http://gateway.local:8080')) {
         localStorage.url = 'http://gateway.local:8080';
@@ -426,7 +426,7 @@ set to default ? eg: http://gateway.local:8080')) {
     }
   };
 
-  app.onload = function() {
+  app.start = function() {
     const self = this;
 
     let searchParams = null;
@@ -493,7 +493,7 @@ ${window.location.pathname}`;
     const runButton = document.getElementById('run');
     if (runButton) {
       runButton.addEventListener('click', function() {
-        app.main();
+        app.connect();
       });
     }
 
@@ -580,6 +580,6 @@ ${window.location.pathname}`;
       }
     });
 
-    app.main();
+    app.connect();
   };
 })();

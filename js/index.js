@@ -14,7 +14,7 @@
   app.devel = !false;
   app.loginUrl = 'login.html';
   app.browseUrl = '00index.html'; // TODO
-  app.viewerUrl = 'log.html';
+  app.viewerUrl = 'view.html';
 
   for (const key in localStorage) {
     if (app[key] !== undefined) {

@@ -95,7 +95,7 @@
       return;
     }
     if (!localStorage.url) {
-      throw 'Error: ';
+      throw 'Error: URL unset';
     }
     if (!endpoint) {
       endpoint = localStorage.endpoint;
@@ -106,7 +106,7 @@
     window.authCount = 0;
     // TODO: https://github.com/mozilla-iot/gateway/pull/1149
     window.addEventListener('message', function(ev) {
-      self.log(`message:${ev}`);
+      self.log(`message: ` + ev && ev.data && ev.data.message);
       if (ev.data.message && ev.data.message.token) {
         localStorage.token = ev.data.message.token;
         window.authCount = 98;
@@ -117,7 +117,7 @@
     }
     window.authWin = window.open(url);
     if (!window.authWin) {
-      throw `Can't open window: ${url}`;
+      throw `Error: Can't open window: ${url} (check CORS)`;
     }
     window.interval = setInterval(function() {
       self.log(`loop: ${window.authCount}`);
@@ -215,6 +215,7 @@
     }
 
     this.get(endpoint, function(err, data) {
+      self.log('onGet: ' + data);
       if (err || !data) {
         console.error(err);
         throw err;
@@ -321,7 +322,7 @@ ${authorize_endpoint}\
   app.poll = function(thing, callback) {
     const self = this;
     const url = `${localStorage.url + thing.href}/properties`;
-    self.log(`fetch: ${url}`);
+    this.log(`fetch: ${url}`);
     fetch(url,
           {headers: {
             'Content-Type': 'application/json',
@@ -396,7 +397,6 @@ ${authorize_endpoint}\
 
   app.connect = function() {
     this.log(`connect: state: ${localStorage.state}`);
-    this.log(`connect: hostname: ${window.location.hostname}`);
     // TODO: OAuth update ids here, URLs using file:// will copy from default
     if (!localStorage.client_id || !localStorage.secret) {
       if (!window.location.hostname) {
@@ -439,7 +439,7 @@ set to default ? eg: ${app.defaultUrl}`)) {
     if (document.location.search) {
       searchParams = (new URL(document.location)).searchParams;
     }
-    console.log(`searchParams=${searchParams}`);
+    this.log(`searchParams=${searchParams}`);
 
     if (searchParams) {
       for (const entry of searchParams.entries()) {
@@ -447,7 +447,7 @@ set to default ? eg: ${app.defaultUrl}`)) {
       }
     }
 
-    console.log(`log: Devel mode: ${localStorage.devel}`);
+    this.log(`Devel mode: ${localStorage.devel}`);
     const develCheckbox = document.getElementById('devel');
     if (develCheckbox) {
       develCheckbox.addEventListener('change', function() {
@@ -457,8 +457,9 @@ set to default ? eg: ${app.defaultUrl}`)) {
         develCheckbox.checked = app.devel;
       }
     }
+    this.log(navigator && navigator.userAgent);
 
-    console.log(`Auto mode: ${localStorage.auto}`);
+    this.log(`Auto mode: ${localStorage.auto}`);
     const autoCheckbox = document.getElementById('auto');
     if (autoCheckbox) {
       if (localStorage.auto) {

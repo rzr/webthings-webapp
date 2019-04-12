@@ -437,6 +437,11 @@ set to default ? eg: ${app.defaultUrl}`)) {
   app.start = function() {
     const self = this;
 
+    // Override default
+    if (typeof tizen != undefined) {
+      app.viewerUrl = 'profile/tau/index.html';
+    }
+
     let searchParams = null;
     if (document.location.search) {
       searchParams = (new URL(document.location)).searchParams;
@@ -585,7 +590,6 @@ ${window.location.pathname}`;
     }
 
     const radios = document.getElementsByName('viewer');
-    console.log(localStorage);
     if (radios) {
       for (const idx in radios) {
         radios[idx].onclick = function() {
@@ -597,6 +601,11 @@ ${window.location.pathname}`;
           radios[idx].checked = (localStorage.viewerUrl === radios[idx].value);
         }
       } else {
+        for (const idx in radios) {
+          if (app.viewerUrl === radios[idx].value) {
+            radios[idx].checked = true;
+          }
+        }
         for (const idx in radios) {
           if (radios[idx].checked) {
             localStorage.viewerUrl = radios[idx].value;

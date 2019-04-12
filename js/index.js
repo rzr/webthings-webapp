@@ -13,7 +13,7 @@
   app.localStorage = localStorage;
   app.devel = !false;
   app.defaultUrl = 'http://gateway.local:8080';
-  app.loginUrl = 'login.html';
+  app.loginUrl = '../../index.html';
   app.browseUrl = '00index.html'; // TODO
   app.viewerUrl = 'profile/html/index.html';
   app.oauthScrapping = true;
@@ -106,7 +106,7 @@
     window.authCount = 0;
     // TODO: https://github.com/mozilla-iot/gateway/pull/1149
     window.addEventListener('message', function(ev) {
-      self.log(`message: ` + ev && ev.data && ev.data.message);
+      self.log(`message: ${ev}` && ev.data && ev.data.message);
       if (ev.data.message && ev.data.message.token) {
         localStorage.token = ev.data.message.token;
         window.authCount = 98;
@@ -138,8 +138,9 @@
         self.log(`Error: post: check CORS err: ${err}`);
       }
       window.authCount++;
-      if (!app.oauthScrapping)
+      if (!app.oauthScrapping) {
         return;
+      }
       try {
         self.log(`accessing a cross-origin frame: ${window.authWin.location}`);
         url = (window.authWin && window.authWin.location &&
@@ -214,15 +215,17 @@
     }
 
     this.get(endpoint, function(err, data) {
-      self.log('onGet: ' + data);
+      self.log(`onGet: ${data}`);
       if (err || !data) {
         console.error(err);
         throw err;
       }
-      const items = data && JSON.parse(data) || [];
-      if (0>(window.location.href.lastIndexOf(localStorage.viewerUrl))) { //TODO
+      if (window.location.href.lastIndexOf(localStorage.viewerUrl) !=
+          (window.location.href.length - localStorage.viewerUrl.length)
+      ) {
         self.redirect(localStorage.viewerUrl);
       } else {
+        const items = data && JSON.parse(data) || [];
         app.devel = true;
         for (let index = 0; index < items.length; index++) {
           const model = items[index];
@@ -517,8 +520,10 @@ ${window.location.pathname}`;
         document.getElementById('token').setAttribute('value', '');
         document.getElementById('endpoint').setAttribute('value', '/things');
         {
-          var widget = document.getElementById('console');
-          if (widget) widget.setAttribute('value', '');
+          const widget = document.getElementById('console');
+          if (widget) {
+            widget.setAttribute('value', '');
+          }
         }
         localStorage.clear();
         app.log('token forgotten (need auth again)');
@@ -579,19 +584,24 @@ ${window.location.pathname}`;
       }
     }
 
-    const viewerInput = document.getElementById('viewer');
-    if (viewerInput) {
-      viewerInput.addEventListener('change', function() {
-        localStorage.viewerUrl = this.options[this.selectedIndex].value;
-      });
+    const radios = document.getElementsByName('viewer');
+    console.log(localStorage);
+    if (radios) {
+      for (const idx in radios) {
+        radios[idx].onclick = function() {
+          localStorage.viewerUrl = this.value;
+        };
+      }
       if (localStorage.viewerUrl) {
-        for (var idx in viewerInput.options) {
-          if (localStorage.viewerUrl === viewerInput.options[idx].value) {
-            viewerInput.selectedIndex = idx;
-          }
+        for (const idx in radios) {
+          radios[idx].checked = (localStorage.viewerUrl === radios[idx].value);
         }
       } else {
-        localStorage.viewerUrl = viewerInput.options[viewerInput.selectedIndex].value;
+        for (const idx in radios) {
+          if (radios[idx].checked) {
+            localStorage.viewerUrl = radios[idx].value;
+          }
+        }
       }
     }
     // add eventListener for tizenhwkey

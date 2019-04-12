@@ -604,7 +604,8 @@ ${window.location.pathname}`;
         }
       }
     });
-
-    app.connect();
+    if (typeof tizen === undefined) {
+      app.connect();
+    }
   };
 })();

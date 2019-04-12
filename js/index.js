@@ -17,6 +17,7 @@
   app.browseUrl = '00index.html'; // TODO
   app.viewerUrl = 'profile/html/index.html';
   app.oauthScrapping = true;
+  app.defaultDelay = 1000;
 
   for (const key in localStorage) {
     if (app[key] !== undefined) {
@@ -102,7 +103,6 @@
     }
     let url = localStorage.url + endpoint;
     this.log(`browse: ${url}`);
-    const delay = 50;
     window.authCount = 0;
     // TODO: https://github.com/mozilla-iot/gateway/pull/1149
     window.addEventListener('message', function(ev) {
@@ -119,8 +119,9 @@
     if (!window.authWin) {
       throw `Error: Can't open window: ${url} (check CORS)`;
     }
+    const delay = app.defaultDelay || 500;
     window.interval = setInterval(function() {
-      self.log(`loop: ${window.authCount}`);
+      self.log(`loop: ${window.authCount}  : +${delay}ms`);
       // self.log('TODO: check if host alive using xhr');
       if (window.authCount > 60) {
         window.clearInterval(window.interval);
@@ -132,11 +133,9 @@
         }
       }
       try {
-        self.log('auth: access authWin may throw exception');
-        self.log(`post: win: ${window.authWin}`);
         window.authWin.postMessage({message: 'token'}, '*');
       } catch (err) {
-        self.log(`post: err: ${err}`);
+        self.log(`Error: post: check CORS err: ${err}`);
       }
       window.authCount++;
       if (!app.oauthScrapping)
@@ -346,7 +345,7 @@ ${authorize_endpoint}\
   app.startPoll = function(thing, callback, delay) {
     const self = this;
     if (!delay) {
-      delay = 1000;
+      delay = app.defaultDelay || 1000;
     }
     interval = setInterval(function() {
       if (app.pause) {

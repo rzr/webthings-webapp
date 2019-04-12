@@ -16,6 +16,7 @@
   app.loginUrl = 'login.html';
   app.browseUrl = '00index.html'; // TODO
   app.viewerUrl = 'profile/html/index.html';
+  app.oauthScrapping = true;
 
   for (const key in localStorage) {
     if (app[key] !== undefined) {
@@ -137,7 +138,9 @@
       } catch (err) {
         self.log(`post: err: ${err}`);
       }
-
+      window.authCount++;
+      if (!app.oauthScrapping)
+        return;
       try {
         self.log(`accessing a cross-origin frame: ${window.authWin.location}`);
         url = (window.authWin && window.authWin.location &&
@@ -148,9 +151,6 @@
         if (url && (url.indexOf('code=') >= 0)) {
           localStorage.token = self.handleDocument(window.authWin.document);
           window.authCount = 99;
-        } else {
-          window.authCount++;
-          self.log(`wait: ${url}`);
         }
       } catch (e) {
         window.authCount = 100;

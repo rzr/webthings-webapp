@@ -1,2 +1,4 @@
+#.eslintignore
+**/lib/
 **/node_modules/
 **/tmp/

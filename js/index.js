@@ -12,6 +12,7 @@
   app.isLoading = true;
   app.localStorage = localStorage;
   app.devel = !false;
+  app.defaultUrl = 'http://gateway.local:8080';
   app.loginUrl = 'login.html';
   app.browseUrl = '00index.html'; // TODO
   app.viewerUrl = 'view.html';
@@ -254,7 +255,7 @@
     }
     const url = new URL(document.location);
     if (!url) {
-      return alert('Please set a valid URL (e.g: http://gateway.local)');
+      return alert(`Please set a valid URL (e.g: ${app.defaultUrl})`);
     }
     const isCallback = (localStorage.state === 'callback');
     let code = null;
@@ -404,9 +405,9 @@ ${authorize_endpoint}\
     }
     if (!localStorage.url) {
       this.log('connect: URL unset');
-      if (confirm('Url is unset,\
-set to default ? eg: http://gateway.local:8080')) {
-        localStorage.url = 'http://gateway.local:8080';
+      if (confirm(`Url is unset,\
+set to default ? eg: ${app.defaultUrl}`)) {
+        localStorage.url = app.defaultUrl;
         const urlInput = document.getElementById('url');
         if (urlInput) {
           urlInput.setAttribute('value', localStorage.url);

@@ -4,13 +4,13 @@
      Copyright 2018-present Samsung Electronics France SAS, and other contributors
      This Source Code Form is subject to the terms of the Mozilla Public
      License, v. 2.0. If a copy of the MPL was not distributed with this
-     file, You can obtain one at http://mozilla.org/MPL/2.0/.*
+     file, You can obtain one at http://mozilla.org/MPL/2.0/
   -->
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta name="theme-color" content="#317EFB"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="description" content="WebThings"/>
 <title>WebThings</title>
 <link rel="icon" type="image/png" href="images/16x16/logo.png"/>
@@ -44,13 +44,15 @@ window.onload = function() {
 <input type="text" id="endpoint" placeholder="Endpoint: (/things)" value="/things">
 </p>
 <p>
-Console:<br/>
-<textarea id="console" name="console" rows="8" cols="40"></textarea>
-</p>
-<p>
 Devel:<br/>
 <input type="checkbox" id="devel" value="false">
 </p>
+<p>
+Viewer:<br/>
+<select id="viewer">
+<option value="profile/html/index.html">HTML Console (debug)</option>
+</select>
+<p>
 </form>
 </div>
 </div>

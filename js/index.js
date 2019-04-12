@@ -15,7 +15,7 @@
   app.defaultUrl = 'http://gateway.local:8080';
   app.loginUrl = 'login.html';
   app.browseUrl = '00index.html'; // TODO
-  app.viewerUrl = 'view.html';
+  app.viewerUrl = 'profile/html/index.html';
 
   for (const key in localStorage) {
     if (app[key] !== undefined) {
@@ -220,9 +220,14 @@
         throw err;
       }
       const items = data && JSON.parse(data) || [];
-      for (let index = 0; index < items.length; index++) {
-        const model = items[index];
-        self.log(JSON.stringify(model));
+      if (0>(window.location.href.lastIndexOf(localStorage.viewerUrl))) { //TODO
+        self.redirect(localStorage.viewerUrl);
+      } else {
+        app.devel = true;
+        for (let index = 0; index < items.length; index++) {
+          const model = items[index];
+          self.log(JSON.stringify(model));
+        }
       }
     });
   };
@@ -508,10 +513,13 @@ ${window.location.pathname}`;
     const resetButton = document.getElementById('reset');
     if (resetButton) {
       resetButton.addEventListener('click', function() {
-        document.getElementById('console').setAttribute('value', '');
         document.getElementById('url').setAttribute('value', '');
         document.getElementById('token').setAttribute('value', '');
         document.getElementById('endpoint').setAttribute('value', '/things');
+        {
+          var widget = document.getElementById('console');
+          if (widget) widget.setAttribute('value', '');
+        }
         localStorage.clear();
         app.log('token forgotten (need auth again)');
       });
@@ -568,6 +576,22 @@ ${window.location.pathname}`;
         endpoint.setAttribute('value', localStorage.endpoint);
       } else if (endpointInput.getAttribute('value')) {
         localStorage.endpoint = endpointInput.getAttribute('value');
+      }
+    }
+
+    const viewerInput = document.getElementById('viewer');
+    if (viewerInput) {
+      viewerInput.addEventListener('change', function() {
+        localStorage.viewerUrl = this.options[this.selectedIndex].value;
+      });
+      if (localStorage.viewerUrl) {
+        for (var idx in viewerInput.options) {
+          if (localStorage.viewerUrl === viewerInput.options[idx].value) {
+            viewerInput.selectedIndex = idx;
+          }
+        }
+      } else {
+        localStorage.viewerUrl = viewerInput.options[viewerInput.selectedIndex].value;
       }
     }
     // add eventListener for tizenhwkey
